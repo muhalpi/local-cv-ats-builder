@@ -55,6 +55,7 @@ const STEPS = [
   { id: "summary", title: "Summary & Skills" },
   { id: "experience", title: "Work Experience" },
   { id: "education", title: "Education" },
+  { id: "review", title: "Review" },
 ];
 
 export default function CVForm() {
@@ -255,6 +256,7 @@ export default function CVForm() {
                   {activeStep === 1 && "A brief summary of your background and key skills."}
                   {activeStep === 2 && "Your relevant work history."}
                   {activeStep === 3 && "Your academic background."}
+                  {activeStep === 4 && "Review everything before saving your CV."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -672,6 +674,98 @@ export default function CVForm() {
                     Add Education
                   </Button>
                 </div>
+
+                <div className={activeStep === 4 ? "space-y-6" : "hidden"}>
+                  <Card className="border-border/50 shadow-sm">
+                    <CardContent className="pt-6 space-y-6">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="font-medium">{form.watch("fullName") || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Job Title</p>
+                          <p className="font-medium">{form.watch("jobTitle") || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{form.watch("email") || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Phone</p>
+                          <p className="font-medium">{form.watch("phone") || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="font-medium">{form.watch("location") || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">LinkedIn</p>
+                          <p className="font-medium break-all">{form.watch("linkedinUrl") || "-"}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Summary</p>
+                        <p className="mt-1 whitespace-pre-wrap">{form.watch("summary") || "-"}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Skills</p>
+                        <p className="mt-1">{form.watch("skills") || "-"}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Languages</p>
+                        <p className="mt-1">{form.watch("languages") || "-"}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Work Experience</p>
+                        <div className="mt-2 space-y-3">
+                          {expFields.length > 0 ? (
+                            expFields.map((_, index) => {
+                              const item = form.watch(`workExperience.${index}`);
+                              return (
+                                <div key={index} className="rounded-lg border p-4">
+                                  <p className="font-medium">{item?.position || "-"} {item?.company ? `at ${item.company}` : ""}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
+                                  </p>
+                                  <p className="mt-2 text-sm whitespace-pre-wrap">{item?.description || "-"}</p>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No work experience added.</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Education</p>
+                        <div className="mt-2 space-y-3">
+                          {eduFields.length > 0 ? (
+                            eduFields.map((_, index) => {
+                              const item = form.watch(`education.${index}`);
+                              return (
+                                <div key={index} className="rounded-lg border p-4">
+                                  <p className="font-medium">{item?.degree || "-"}{item?.field ? ` · ${item.field}` : ""}</p>
+                                  <p className="text-sm text-muted-foreground">{item?.institution || "-"}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
+                                  </p>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No education added yet.</p>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </CardContent>
               <CardFooter className="bg-muted/30 border-t border-border/50 py-4 flex justify-between">
                 <Button 
@@ -684,9 +778,14 @@ export default function CVForm() {
                   Previous
                 </Button>
                 
-                {activeStep < STEPS.length - 1 ? (
+                {activeStep < STEPS.length - 2 ? (
                   <Button type="button" onClick={nextStep} disabled={isSubmitting}>
                     Next Step
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : activeStep === STEPS.length - 2 ? (
+                  <Button type="button" onClick={nextStep} disabled={isSubmitting}>
+                    Review
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
