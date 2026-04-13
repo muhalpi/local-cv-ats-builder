@@ -180,7 +180,14 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
           </div>
           <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? 'Sekarang' : escapeHtml(exp.endDate ?? '')}</div>
         </div>
-        <div class="entry-desc">${escapeHtml(exp.description).replace(/\n/g, '<br>')}</div>
+        <ul class="entry-desc">
+          ${escapeHtml(exp.description)
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) => `<li>${escapeHtml(line)}</li>`)
+            .join('')}
+        </ul>
       </div>
     `).join('');
 
@@ -192,7 +199,10 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
             <div class="entry-title">${escapeHtml(edu.degree)} – ${escapeHtml(edu.field)}</div>
             <div class="entry-subtitle">${escapeHtml(edu.institution)}</div>
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? 'Sekarang' : escapeHtml(edu.endDate ?? '')}${edu.gpa ? ` | IPK: ${escapeHtml(edu.gpa)}` : ''}</div>
+          <div class="entry-date">
+            <div>${escapeHtml(edu.startDate)} – ${edu.isCurrent ? 'Sekarang' : escapeHtml(edu.endDate ?? '')}</div>
+            ${edu.gpa ? `<div class="entry-gpa">IPK: ${escapeHtml(edu.gpa)}</div>` : ''}
+          </div>
         </div>
       </div>
     `).join('');
@@ -228,7 +238,9 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   .entry-title { font-weight: 700; font-size: 10.5pt; color: #1a1a2e; }
   .entry-subtitle { color: #475569; font-size: 10pt; }
   .entry-date { font-size: 9.5pt; color: #6b7280; white-space: nowrap; margin-left: 8px; }
-  .entry-desc { margin-top: 4px; font-size: 10pt; color: #374151; line-height: 1.5; }
+  .entry-gpa { margin-top: 2px; font-size: 9.5pt; color: #6b7280; }
+  .entry-desc { margin: 6px 0 0 18px; font-size: 10pt; color: #374151; line-height: 1.5; }
+  .entry-desc li { margin-bottom: 4px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: #1e40af; }
   @media print {
