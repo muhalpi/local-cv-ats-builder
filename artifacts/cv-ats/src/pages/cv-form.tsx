@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "wouter";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save, Eye } from "lucide-react";
+import { generateCVPreviewHtml } from "@/lib/generate-cv-html";
 
 const workExperienceSchema = z.object({
   company: z.string().min(1, "Company is required"),
@@ -200,6 +201,18 @@ export default function CVForm() {
 
   const isSubmitting = createCV.isPending || updateCV.isPending;
 
+  const watchedValues = form.watch();
+  const previewHtml = useMemo(
+    () => generateCVPreviewHtml(watchedValues),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      watchedValues.fullName, watchedValues.email, watchedValues.phone, watchedValues.location,
+      watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
+      watchedValues.linkedinUrl, watchedValues.portfolioUrl,
+      JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
+    ]
+  );
+
   if (isEditing && isLoadingInitial) {
     return (
       <div className="flex min-h-[100dvh] flex-col bg-background/50">
@@ -214,13 +227,17 @@ export default function CVForm() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background/50">
       <Navbar />
-      <main className="flex-1 container mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-8">
+      <main className="flex-1 px-4 py-8">
+        <div className="mx-auto max-w-[1440px]">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-primary">
             {isEditing ? "Edit CV" : "Create New CV"}
           </h1>
           <p className="text-muted-foreground mt-1">Fill out the fields to build your professional profile.</p>
         </div>
+
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 min-w-0">
 
         {/* Stepper */}
         <div className="mb-8 flex items-center justify-between relative">
@@ -849,6 +866,36 @@ export default function CVForm() {
             </Card>
           </form>
         </Form>
+
+          </div>{/* end form column */}
+
+          {/* Live Preview Panel */}
+          <div className="hidden xl:flex flex-col w-[390px] flex-shrink-0 sticky top-4">
+            <div className="border rounded-lg shadow-sm bg-white overflow-hidden">
+              <div className="bg-muted/50 px-4 py-2 border-b text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Eye className="h-3.5 w-3.5" />
+                Live Preview
+              </div>
+              <div style={{ height: '620px', overflow: 'hidden', position: 'relative' }}>
+                <iframe
+                  srcDoc={previewHtml}
+                  title="CV Preview"
+                  style={{
+                    width: '820px',
+                    height: '1300px',
+                    border: 'none',
+                    transform: 'scale(0.476)',
+                    transformOrigin: 'top left',
+                    pointerEvents: 'none',
+                  }}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground text-center mt-2">Preview diperbarui otomatis</p>
+          </div>
+
+        </div>{/* end flex split */}
+        </div>{/* end max-w container */}
       </main>
     </div>
   );
