@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save, Eye, CheckCircle2, XCircle } from "lucide-react";
 import { generateCVPreviewHtml } from "@/lib/generate-cv-html";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/lib/i18n";
 import type { Translations } from "@/lib/i18n";
 
 function makeSchema(v: Translations["cvForm"]["validation"]) {
@@ -230,8 +231,6 @@ export default function CVForm() {
     { id: "review", title: cf.steps.review },
   ];
 
-  const PRESET_SECTIONS = cf.presetSections;
-
   const schema = useMemo(() => makeSchema(cf.validation), [language]);
 
   const { data: initialData, isLoading: isLoadingInitial } = useGetCV(id as number, {
@@ -360,6 +359,8 @@ export default function CVForm() {
   const isSubmitting = createCV.isPending || updateCV.isPending;
 
   const watchedValues = form.watch();
+  const PRESET_SECTIONS = translations[watchedValues.cvLanguage ?? "en"].cvForm.presetSections;
+
   const previewHtml = useMemo(
     () => generateCVPreviewHtml(watchedValues),
     // eslint-disable-next-line react-hooks/exhaustive-deps
