@@ -3,8 +3,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, FileText, Zap, Download } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+  const h = t.home;
+
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <Navbar />
@@ -14,21 +18,21 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-primary">
-                  Build a Professional, ATS-Friendly CV
+                  {h.title}
                 </h1>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  A quiet, professional workspace to help you land your dream job. Calm, encouraging, and does all the heavy lifting for you.
+                  {h.subtitle}
                 </p>
               </div>
               <div className="space-x-4 pt-6">
                 <Link href="/cv/new">
                   <Button size="lg" className="h-12 px-8 font-medium shadow-md transition-transform hover:-translate-y-1">
-                    Start Creating Now
+                    {h.startCreating}
                   </Button>
                 </Link>
                 <Link href="/cv">
                   <Button size="lg" variant="outline" className="h-12 px-8 font-medium">
-                    View My CVs
+                    {h.viewMyCVs}
                   </Button>
                 </Link>
               </div>
@@ -43,12 +47,10 @@ export default function Home() {
                   <div className="mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
-                  <CardTitle>ATS-Optimized</CardTitle>
+                  <CardTitle>{h.features.ats.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    Structured formats that pass seamlessly through Applicant Tracking Systems.
-                  </CardDescription>
+                  <CardDescription>{h.features.ats.desc}</CardDescription>
                 </CardContent>
               </Card>
               <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow">
@@ -56,12 +58,10 @@ export default function Home() {
                   <div className="mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <Zap className="h-5 w-5" />
                   </div>
-                  <CardTitle>Fast & Easy</CardTitle>
+                  <CardTitle>{h.features.fast.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    A step-by-step process that removes the hassle of formatting.
-                  </CardDescription>
+                  <CardDescription>{h.features.fast.desc}</CardDescription>
                 </CardContent>
               </Card>
               <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow">
@@ -69,12 +69,10 @@ export default function Home() {
                   <div className="mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <Download className="h-5 w-5" />
                   </div>
-                  <CardTitle>Downloadable PDF</CardTitle>
+                  <CardTitle>{h.features.pdf.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    Generate a clean, print-ready layout and save it as a PDF instantly.
-                  </CardDescription>
+                  <CardDescription>{h.features.pdf.desc}</CardDescription>
                 </CardContent>
               </Card>
               <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow">
@@ -82,12 +80,10 @@ export default function Home() {
                   <div className="mb-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <FileText className="h-5 w-5" />
                   </div>
-                  <CardTitle>100% Free</CardTitle>
+                  <CardTitle>{h.features.free.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    No hidden paywalls or premium templates. Completely free to use.
-                  </CardDescription>
+                  <CardDescription>{h.features.free.desc}</CardDescription>
                 </CardContent>
               </Card>
             </div>
@@ -96,7 +92,7 @@ export default function Home() {
       </main>
       <footer className="border-t bg-background py-6 text-center text-sm text-muted-foreground">
         <div className="container mx-auto px-4">
-          <p>&copy; {new Date().getFullYear()} BuatCV. Built to help you succeed.</p>
+          <p>&copy; {new Date().getFullYear()} BuatCV. {h.footer}</p>
         </div>
       </footer>
     </div>

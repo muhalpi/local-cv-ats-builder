@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Plus, Trash2, Edit, Eye, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,20 +26,22 @@ export default function CVList() {
   const deleteCV = useDeleteCV();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useLanguage();
+  const l = t.cvList;
 
   const handleDelete = async (id: number) => {
     deleteCV.mutate({ id }, {
       onSuccess: () => {
         toast({
-          title: "CV deleted",
-          description: "Your CV has been successfully removed.",
+          title: l.toastDeleted,
+          description: l.toastDeletedDesc,
         });
         queryClient.invalidateQueries({ queryKey: getListCVsQueryKey() });
       },
       onError: () => {
         toast({
-          title: "Failed to delete",
-          description: "An error occurred while deleting your CV.",
+          title: l.toastDeleteFailed,
+          description: l.toastDeleteFailedDesc,
           variant: "destructive",
         });
       }
@@ -51,13 +54,13 @@ export default function CVList() {
       <main className="flex-1 container mx-auto max-w-6xl px-4 py-8 md:py-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">My CVs</h1>
-            <p className="text-muted-foreground mt-1">Manage and edit your professional resumes.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">{l.title}</h1>
+            <p className="text-muted-foreground mt-1">{l.subtitle}</p>
           </div>
           <Link href="/cv/new">
             <Button className="w-full sm:w-auto shadow-sm">
               <Plus className="mr-2 h-4 w-4" />
-              Create New CV
+              {l.createNew}
             </Button>
           </Link>
         </div>
@@ -83,21 +86,19 @@ export default function CVList() {
           </div>
         ) : error ? (
           <div className="text-center py-12 border rounded-xl bg-destructive/5 text-destructive">
-            <p>Failed to load CVs. Please try again later.</p>
+            <p>{l.failedLoad}</p>
           </div>
         ) : cvs?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-4 text-center border-2 border-dashed rounded-xl bg-card">
             <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary">
               <FileText className="h-10 w-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">No CVs found</h2>
-            <p className="text-muted-foreground max-w-[400px] mb-8">
-              You haven't created any CVs yet. Start building your professional profile to land your dream job.
-            </p>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">{l.noCVsTitle}</h2>
+            <p className="text-muted-foreground max-w-[400px] mb-8">{l.noCVsDesc}</p>
             <Link href="/cv/new">
               <Button size="lg" className="shadow-sm">
                 <Plus className="mr-2 h-5 w-5" />
-                Create Your First CV
+                {l.createFirst}
               </Button>
             </Link>
           </div>
@@ -117,7 +118,7 @@ export default function CVList() {
                   <p className="truncate" title={cv.email}>{cv.email}</p>
                   <div className="flex items-center pt-2 text-xs">
                     <Clock className="mr-1.5 h-3 w-3" />
-                    Updated {format(new Date(cv.updatedAt), "MMM d, yyyy")}
+                    {l.updatedAt} {format(new Date(cv.updatedAt), "MMM d, yyyy")}
                   </div>
                 </CardContent>
                 <CardFooter className="pt-4 border-t gap-2 grid grid-cols-3 bg-muted/20">
@@ -139,18 +140,16 @@ export default function CVList() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete this CV. This action cannot be undone.
-                        </AlertDialogDescription>
+                        <AlertDialogTitle>{l.deleteTitle}</AlertDialogTitle>
+                        <AlertDialogDescription>{l.deleteDesc}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{l.cancel}</AlertDialogCancel>
                         <AlertDialogAction
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           onClick={() => handleDelete(cv.id)}
                         >
-                          {deleteCV.isPending ? "Deleting..." : "Delete"}
+                          {deleteCV.isPending ? l.deleting : l.delete}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

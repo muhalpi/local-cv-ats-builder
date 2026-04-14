@@ -6,12 +6,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Download, Edit, ArrowLeft, FileText, Printer } from "lucide-react";
 import { Link } from "wouter";
 import { useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function CVDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0", 10);
   const [, setLocation] = useLocation();
   const printFrameRef = useRef<HTMLIFrameElement>(null);
+  const { t } = useLanguage();
+  const d = t.cvDetail;
 
   const { data: cvHtml, isLoading, error } = useGetCVHtml(id, {
     query: {
@@ -49,17 +52,15 @@ export default function CVDetail() {
             <div className="space-y-2">
             <Link href="/cv" className="hover:text-foreground flex items-center gap-1 transition-colors">
               <ArrowLeft className="h-4 w-4" />
-              Back to CVs
+              {d.backToCVs}
             </Link>
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-primary">CV Preview</h1>
-                  <p className="text-sm text-muted-foreground">
-                    Use "Save as PDF" to get a clean document output, not the full app page.
-                  </p>
+                  <h1 className="text-2xl font-bold tracking-tight text-primary">{d.previewTitle}</h1>
+                  <p className="text-sm text-muted-foreground">{d.previewSubtitle}</p>
                 </div>
               </div>
             </div>
@@ -67,12 +68,12 @@ export default function CVDetail() {
               <Link href={`/cv/${id}/edit`} className="w-full">
                 <Button variant="outline" className="w-full shadow-sm">
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit CV
+                  {d.editCV}
                 </Button>
               </Link>
               <Button onClick={handlePrint} className="w-full shadow-sm" disabled={!cvHtml?.html || isLoading}>
                 <Printer className="mr-2 h-4 w-4" />
-                Save as PDF
+                {d.saveAsPDF}
               </Button>
             </div>
           </div>
@@ -82,9 +83,9 @@ export default function CVDetail() {
           <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-2 font-medium">
               <Download className="h-4 w-4" />
-              CV Document
+              {d.cvDocument}
             </span>
-            <span>Use the “Save as PDF” button for a clean document layout.</span>
+            <span>{d.cvDocumentHint}</span>
           </div>
           {isLoading ? (
             <div className="p-8 sm:p-12 space-y-6">
@@ -114,9 +115,9 @@ export default function CVDetail() {
             </div>
           ) : error ? (
             <div className="p-12 text-center text-destructive">
-              <p>Failed to load CV preview. The CV might not exist.</p>
+              <p>{d.failedLoad}</p>
               <Button variant="outline" className="mt-4" onClick={() => setLocation("/cv")}>
-                Return to My CVs
+                {d.returnToMyCVs}
               </Button>
             </div>
           ) : (

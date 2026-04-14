@@ -14,89 +14,76 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Save, Eye, CheckCircle2, XCircle } from "lucide-react";
 import { generateCVPreviewHtml } from "@/lib/generate-cv-html";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { Translations } from "@/lib/i18n";
 
-const workExperienceSchema = z.object({
-  company: z.string().min(1, "Company is required"),
-  position: z.string().min(1, "Position is required"),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().optional().nullable(),
-  isCurrent: z.boolean().default(false),
-  description: z.string().min(1, "Description is required"),
-});
+function makeSchema(v: Translations["cvForm"]["validation"]) {
+  const workExperienceSchema = z.object({
+    company: z.string().min(1, v.companyRequired),
+    position: z.string().min(1, v.positionRequired),
+    startDate: z.string().min(1, v.startDateRequired),
+    endDate: z.string().optional().nullable(),
+    isCurrent: z.boolean().default(false),
+    description: z.string().min(1, v.descriptionRequired),
+  });
 
-const educationSchema = z.object({
-  institution: z.string().min(1, "Institution is required"),
-  degree: z.string().min(1, "Degree is required"),
-  field: z.string().min(1, "Field of study is required"),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().optional().nullable(),
-  isCurrent: z.boolean().default(false),
-  gpa: z.string().optional().nullable(),
-});
+  const educationSchema = z.object({
+    institution: z.string().min(1, v.institutionRequired),
+    degree: z.string().min(1, v.degreeRequired),
+    field: z.string().min(1, v.fieldRequired),
+    startDate: z.string().min(1, v.startDateRequired),
+    endDate: z.string().optional().nullable(),
+    isCurrent: z.boolean().default(false),
+    gpa: z.string().optional().nullable(),
+  });
 
-const extraSectionEntrySchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  subtitle: z.string().optional().nullable(),
-  date: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
-});
+  const extraSectionEntrySchema = z.object({
+    title: z.string().min(1, v.titleRequired),
+    subtitle: z.string().optional().nullable(),
+    date: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+  });
 
-const extraSectionSchema = z.object({
-  sectionTitle: z.string().min(1, "Section name is required"),
-  entries: z.array(extraSectionEntrySchema),
-});
+  const extraSectionSchema = z.object({
+    sectionTitle: z.string().min(1, v.sectionNameRequired),
+    entries: z.array(extraSectionEntrySchema),
+  });
 
-const formSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional().nullable(),
-  location: z.string().optional().nullable(),
-  jobTitle: z.string().min(2, "Job title is required"),
-  summary: z.string().min(10, "Summary must be at least 10 characters"),
-  skills: z.string().min(1, "Skills are required"), // We'll split this by comma for the API
-  languages: z.string().optional(), // We'll split this by comma for the API
-  linkedinUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
-    if (!val) return true;
-    try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
-  }, "Invalid URL"),
-  portfolioUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
-    if (!val) return true;
-    try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
-  }, "Invalid URL"),
-  workExperience: z.array(workExperienceSchema),
-  education: z.array(educationSchema),
-  extraSections: z.array(extraSectionSchema),
-});
+  return z.object({
+    fullName: z.string().min(2, v.fullNameRequired),
+    email: z.string().email(v.emailInvalid),
+    phone: z.string().optional().nullable(),
+    location: z.string().optional().nullable(),
+    jobTitle: z.string().min(2, v.jobTitleRequired),
+    summary: z.string().min(10, v.summaryRequired),
+    skills: z.string().min(1, v.skillsRequired),
+    languages: z.string().optional(),
+    linkedinUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
+      if (!val) return true;
+      try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
+    }, v.invalidUrl),
+    portfolioUrl: z.string().optional().or(z.literal("")).nullable().refine((val) => {
+      if (!val) return true;
+      try { new URL(/^https?:\/\//i.test(val) ? val : `https://${val}`); return true; } catch { return false; }
+    }, v.invalidUrl),
+    workExperience: z.array(workExperienceSchema),
+    education: z.array(educationSchema),
+    extraSections: z.array(extraSectionSchema),
+  });
+}
 
-type FormValues = z.infer<typeof formSchema>;
-
-const STEPS = [
-  { id: "personal", title: "Personal Info" },
-  { id: "summary", title: "Summary & Skills" },
-  { id: "experience", title: "Work Experience" },
-  { id: "education", title: "Education" },
-  { id: "extra", title: "Extra Sections" },
-  { id: "review", title: "Review" },
-];
-
-const PRESET_SECTIONS = [
-  "Awards & Honors",
-  "Organizational Experience",
-  "Training & Certifications",
-  "Projects",
-  "Publications",
-  "Volunteer Work",
-  "Online Courses",
-];
+type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
 function ExtraSectionItem({
   sectionIndex,
   control,
   onRemove,
+  f,
 }: {
   sectionIndex: number;
   control: Control<FormValues>;
   onRemove: () => void;
+  f: Translations["cvForm"]["fields"];
 }) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -120,7 +107,7 @@ function ExtraSectionItem({
           name={`extraSections.${sectionIndex}.sectionTitle`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Section Name *</FormLabel>
+              <FormLabel>{f.sectionName}</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Certifications" {...field} />
               </FormControl>
@@ -149,7 +136,7 @@ function ExtraSectionItem({
                   name={`extraSections.${sectionIndex}.entries.${entryIndex}.title`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title *</FormLabel>
+                      <FormLabel>{f.title}</FormLabel>
                       <FormControl>
                         <Input placeholder="AWS Certified Cloud Practitioner" {...field} />
                       </FormControl>
@@ -162,7 +149,7 @@ function ExtraSectionItem({
                   name={`extraSections.${sectionIndex}.entries.${entryIndex}.subtitle`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subtitle</FormLabel>
+                      <FormLabel>{f.subtitle}</FormLabel>
                       <FormControl>
                         <Input placeholder="Amazon Web Services" {...field} value={field.value || ""} />
                       </FormControl>
@@ -176,7 +163,7 @@ function ExtraSectionItem({
                 name={`extraSections.${sectionIndex}.entries.${entryIndex}.date`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date / Period</FormLabel>
+                    <FormLabel>{f.datePeriod}</FormLabel>
                     <FormControl>
                       <Input placeholder="2024" {...field} value={field.value || ""} />
                     </FormControl>
@@ -189,7 +176,7 @@ function ExtraSectionItem({
                 name={`extraSections.${sectionIndex}.entries.${entryIndex}.description`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{f.descriptionOptional}</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Add short bullet points relevant to the position you're applying for."
@@ -198,7 +185,7 @@ function ExtraSectionItem({
                         value={field.value || ""}
                       />
                     </FormControl>
-                    <FormDescription>Each new line becomes a separate bullet point on the CV.</FormDescription>
+                    <FormDescription>{f.descriptionHintOptional}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -224,11 +211,27 @@ export default function CVForm() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+  const { t, language } = useLanguage();
+  const cf = t.cvForm;
+  const f = cf.fields;
+
   const id = params.id ? parseInt(params.id, 10) : undefined;
   const isEditing = !!id;
 
   const [activeStep, setActiveStep] = useState(0);
+
+  const STEPS = [
+    { id: "personal", title: cf.steps.personal },
+    { id: "summary", title: cf.steps.summary },
+    { id: "experience", title: cf.steps.experience },
+    { id: "education", title: cf.steps.education },
+    { id: "extra", title: cf.steps.extra },
+    { id: "review", title: cf.steps.review },
+  ];
+
+  const PRESET_SECTIONS = cf.presetSections;
+
+  const schema = useMemo(() => makeSchema(cf.validation), [language]);
 
   const { data: initialData, isLoading: isLoadingInitial } = useGetCV(id as number, {
     query: {
@@ -241,7 +244,7 @@ export default function CVForm() {
   const updateCV = useUpdateCV();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -311,17 +314,17 @@ export default function CVForm() {
     try {
       if (isEditing) {
         await updateCV.mutateAsync({ id: id as number, data: apiData });
-        toast({ title: "CV Updated", description: "Your CV has been successfully updated." });
+        toast({ title: cf.toast.updated, description: cf.toast.updatedDesc });
         setLocation(`/cv/${id}`);
       } else {
         const result = await createCV.mutateAsync({ data: apiData });
-        toast({ title: "CV Created", description: "Your CV has been successfully created." });
+        toast({ title: cf.toast.created, description: cf.toast.createdDesc });
         setLocation(`/cv/${result.id}`);
       }
-    } catch (error) {
+    } catch {
       toast({
-        title: "Error",
-        description: "An error occurred while saving your CV. Please check the fields and try again.",
+        title: cf.toast.errorTitle,
+        description: cf.toast.errorDesc,
         variant: "destructive",
       });
     }
@@ -329,29 +332,16 @@ export default function CVForm() {
 
   const validateStep = async (stepIndex: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
-    
-    if (stepIndex === 0) {
-      fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl"];
-    } else if (stepIndex === 1) {
-      fieldsToValidate = ["summary", "skills", "languages"];
-    } else if (stepIndex === 2) {
-      fieldsToValidate = ["workExperience"];
-    } else if (stepIndex === 3) {
-      fieldsToValidate = ["education"];
-    } else if (stepIndex === 4) {
-      fieldsToValidate = ["extraSections"];
-    }
-
-    const isValid = await form.trigger(fieldsToValidate);
-    return isValid;
+    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl"];
+    else if (stepIndex === 1) fieldsToValidate = ["summary", "skills", "languages"];
+    else if (stepIndex === 2) fieldsToValidate = ["workExperience"];
+    else if (stepIndex === 3) fieldsToValidate = ["education"];
+    else if (stepIndex === 4) fieldsToValidate = ["extraSections"];
+    return await form.trigger(fieldsToValidate);
   };
 
   const nextStep = async () => {
-    const isValid = await validateStep(activeStep);
-    if (!isValid) {
-      return;
-    }
-
+    if (!await validateStep(activeStep)) return;
     if (activeStep < STEPS.length - 1) {
       setActiveStep((prev) => Math.min(prev + 1, STEPS.length - 1));
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -399,6 +389,44 @@ export default function CVForm() {
     if (h > 0) setIframeHeight(h);
   }, []);
 
+  const atsChecks = useMemo(() => {
+    const v = watchedValues;
+    if (language === "id") {
+      return [
+        { label: "Nama lengkap diisi", ok: !!v.fullName?.trim() },
+        { label: "Jabatan diisi", ok: !!v.jobTitle?.trim() },
+        { label: "Alamat email tersedia", ok: !!v.email?.trim() },
+        { label: "Nomor telepon tersedia", ok: !!v.phone?.trim() },
+        { label: "Lokasi tersedia", ok: !!v.location?.trim() },
+        { label: "Ringkasan profesional ditulis", ok: (v.summary?.trim().length ?? 0) >= 50 },
+        { label: "Minimal 3 keahlian tercantum", ok: v.skills.split(",").map(s => s.trim()).filter(Boolean).length >= 3 },
+        { label: "Minimal 1 pengalaman kerja", ok: v.workExperience.length > 0 },
+        { label: "Pengalaman kerja memiliki deskripsi", ok: v.workExperience.every(e => e.description?.trim().length > 0) },
+        { label: "Minimal 1 entri pendidikan", ok: v.education.length > 0 },
+        { label: "URL LinkedIn tersedia", ok: !!v.linkedinUrl?.trim() },
+      ];
+    }
+    return [
+      { label: "Full name filled in", ok: !!v.fullName?.trim() },
+      { label: "Job title filled in", ok: !!v.jobTitle?.trim() },
+      { label: "Email address provided", ok: !!v.email?.trim() },
+      { label: "Phone number provided", ok: !!v.phone?.trim() },
+      { label: "Location provided", ok: !!v.location?.trim() },
+      { label: "Professional summary written", ok: (v.summary?.trim().length ?? 0) >= 50 },
+      { label: "At least 3 skills listed", ok: v.skills.split(",").map(s => s.trim()).filter(Boolean).length >= 3 },
+      { label: "At least 1 work experience", ok: v.workExperience.length > 0 },
+      { label: "Work experience has descriptions", ok: v.workExperience.every(e => e.description?.trim().length > 0) },
+      { label: "At least 1 education entry", ok: v.education.length > 0 },
+      { label: "LinkedIn URL provided", ok: !!v.linkedinUrl?.trim() },
+    ];
+  }, [
+    language,
+    watchedValues.fullName, watchedValues.jobTitle, watchedValues.email, watchedValues.phone,
+    watchedValues.location, watchedValues.summary, watchedValues.skills,
+    JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
+    watchedValues.linkedinUrl,
+  ]);
+
   if (isEditing && isLoadingInitial) {
     return (
       <div className="flex min-h-[100dvh] flex-col bg-background/50">
@@ -417,9 +445,9 @@ export default function CVForm() {
         <div className="mx-auto max-w-[1320px]">
         <div className="mb-4">
           <h1 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">
-            {isEditing ? "Edit CV" : "Create New CV"}
+            {isEditing ? cf.editTitle : cf.createTitle}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 md:text-base">Fill out the fields to build your professional profile.</p>
+          <p className="text-sm text-muted-foreground mt-1 md:text-base">{cf.formSubtitle}</p>
         </div>
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,680px)_minmax(520px,1fr)]">
@@ -454,11 +482,7 @@ export default function CVForm() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !(e.target instanceof HTMLTextAreaElement) &&
-                activeStep < STEPS.length - 1
-              ) {
+              if (e.key === "Enter" && !(e.target instanceof HTMLTextAreaElement) && activeStep < STEPS.length - 1) {
                 e.preventDefault();
               }
             }}
@@ -468,15 +492,17 @@ export default function CVForm() {
               <CardHeader className="bg-muted/30 border-b border-border/50 px-5 py-4">
                 <CardTitle>{STEPS[activeStep].title}</CardTitle>
                 <CardDescription>
-                  {activeStep === 0 && "Your contact information and professional headline."}
-                  {activeStep === 1 && "A brief summary of your background and key skills."}
-                  {activeStep === 2 && "Your relevant work history."}
-                  {activeStep === 3 && "Your academic background."}
-                  {activeStep === 4 && "Add optional sections like certifications, projects, awards, or volunteer work."}
-                  {activeStep === 5 && "Review everything before saving your CV."}
+                  {activeStep === 0 && cf.stepDescriptions.personal}
+                  {activeStep === 1 && cf.stepDescriptions.summary}
+                  {activeStep === 2 && cf.stepDescriptions.experience}
+                  {activeStep === 3 && cf.stepDescriptions.education}
+                  {activeStep === 4 && cf.stepDescriptions.extra}
+                  {activeStep === 5 && cf.stepDescriptions.review}
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-5 pt-5">
+
+                {/* ─── Step 0: Personal Info ─── */}
                 <div className={activeStep === 0 ? "space-y-5" : "hidden"}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -484,7 +510,7 @@ export default function CVForm() {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name *</FormLabel>
+                          <FormLabel>{f.fullName}</FormLabel>
                           <FormControl>
                             <Input placeholder="John Doe" {...field} />
                           </FormControl>
@@ -497,7 +523,7 @@ export default function CVForm() {
                       name="jobTitle"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Job Title *</FormLabel>
+                          <FormLabel>{f.jobTitle}</FormLabel>
                           <FormControl>
                             <Input placeholder="Software Engineer" {...field} />
                           </FormControl>
@@ -512,7 +538,7 @@ export default function CVForm() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email *</FormLabel>
+                          <FormLabel>{f.email}</FormLabel>
                           <FormControl>
                             <Input type="email" placeholder="john@example.com" {...field} />
                           </FormControl>
@@ -525,7 +551,7 @@ export default function CVForm() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone</FormLabel>
+                          <FormLabel>{f.phone}</FormLabel>
                           <FormControl>
                             <Input placeholder="+62 812 3456 7890" {...field} value={field.value || ""} />
                           </FormControl>
@@ -540,7 +566,7 @@ export default function CVForm() {
                       name="location"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Location</FormLabel>
+                          <FormLabel>{f.location}</FormLabel>
                           <FormControl>
                             <Input placeholder="Jakarta, Indonesia" {...field} value={field.value || ""} />
                           </FormControl>
@@ -553,7 +579,7 @@ export default function CVForm() {
                       name="linkedinUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>LinkedIn URL</FormLabel>
+                          <FormLabel>{f.linkedinUrl}</FormLabel>
                           <FormControl>
                             <Input placeholder="https://linkedin.com/in/johndoe" {...field} value={field.value || ""} />
                           </FormControl>
@@ -567,7 +593,7 @@ export default function CVForm() {
                     name="portfolioUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Portfolio URL</FormLabel>
+                        <FormLabel>{f.portfolioUrl}</FormLabel>
                         <FormControl>
                           <Input placeholder="https://johndoe.com" {...field} value={field.value || ""} />
                         </FormControl>
@@ -577,21 +603,26 @@ export default function CVForm() {
                   />
                 </div>
 
+                {/* ─── Step 1: Summary & Skills ─── */}
                 <div className={activeStep === 1 ? "space-y-5" : "hidden"}>
                   <FormField
                     control={form.control}
                     name="summary"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Professional Summary *</FormLabel>
+                        <FormLabel>{f.professionalSummary}</FormLabel>
                         <FormControl>
                           <Textarea 
-                            placeholder="A dedicated software engineer with 5 years of experience..." 
+                            placeholder={f.summaryPlaceholder}
                             className="h-28 resize-none" 
                             {...field} 
                           />
                         </FormControl>
-                        <FormDescription>Write 2-4 sentences summarizing your professional background and goals.</FormDescription>
+                        <FormDescription>
+                          {language === "id"
+                            ? "Tulis 2–4 kalimat yang merangkum latar belakang dan tujuan profesional Anda."
+                            : "Write 2-4 sentences summarizing your professional background and goals."}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -601,11 +632,11 @@ export default function CVForm() {
                     name="skills"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Skills *</FormLabel>
+                        <FormLabel>{f.skills}</FormLabel>
                         <FormControl>
-                          <Input placeholder="JavaScript, React, Node.js, Project Management" {...field} />
+                          <Input placeholder={f.skillsPlaceholder} {...field} />
                         </FormControl>
-                        <FormDescription>Comma-separated list of your key skills.</FormDescription>
+                        <FormDescription>{f.skillsHint}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -615,17 +646,18 @@ export default function CVForm() {
                     name="languages"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Languages</FormLabel>
+                        <FormLabel>{f.languages}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Indonesian, English" {...field} value={field.value || ""} />
+                          <Input placeholder={f.languagesPlaceholder} {...field} value={field.value || ""} />
                         </FormControl>
-                        <FormDescription>Comma-separated list of languages you speak.</FormDescription>
+                        <FormDescription>{f.languagesHint}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
+                {/* ─── Step 2: Work Experience ─── */}
                 <div className={activeStep === 2 ? "space-y-5" : "hidden"}>
                   {expFields.map((field, index) => (
                     <Card key={field.id} className="relative border-border shadow-sm">
@@ -645,7 +677,7 @@ export default function CVForm() {
                             name={`workExperience.${index}.company`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Company *</FormLabel>
+                                <FormLabel>{f.company}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Tech Corp" {...field} />
                                 </FormControl>
@@ -658,7 +690,7 @@ export default function CVForm() {
                             name={`workExperience.${index}.position`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Position *</FormLabel>
+                                <FormLabel>{f.position}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Frontend Developer" {...field} />
                                 </FormControl>
@@ -673,7 +705,7 @@ export default function CVForm() {
                             name={`workExperience.${index}.startDate`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Start Date *</FormLabel>
+                                <FormLabel>{f.startDate}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Jan 2020" {...field} />
                                 </FormControl>
@@ -686,7 +718,7 @@ export default function CVForm() {
                             name={`workExperience.${index}.endDate`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>End Date</FormLabel>
+                                <FormLabel>{f.endDate}</FormLabel>
                                 <FormControl>
                                   <Input 
                                     placeholder="Present" 
@@ -710,14 +742,12 @@ export default function CVForm() {
                                   checked={field.value}
                                   onCheckedChange={(checked) => {
                                     field.onChange(checked);
-                                    if (checked) {
-                                      form.setValue(`workExperience.${index}.endDate`, "");
-                                    }
+                                    if (checked) form.setValue(`workExperience.${index}.endDate`, "");
                                   }}
                                 />
                               </FormControl>
                               <div className="space-y-1 leading-none">
-                                <FormLabel>I currently work here</FormLabel>
+                                <FormLabel>{f.isCurrent}</FormLabel>
                               </div>
                             </FormItem>
                           )}
@@ -727,7 +757,7 @@ export default function CVForm() {
                           name={`workExperience.${index}.description`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Description *</FormLabel>
+                              <FormLabel>{f.description}</FormLabel>
                               <FormControl>
                                 <Textarea 
                                   placeholder="• Developed new features using React..." 
@@ -735,7 +765,7 @@ export default function CVForm() {
                                   {...field} 
                                 />
                               </FormControl>
-                              <FormDescription>Use bullet points to list achievements and responsibilities.</FormDescription>
+                              <FormDescription>{f.descriptionHint}</FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -750,10 +780,11 @@ export default function CVForm() {
                     className="w-full border-dashed border-2 py-6 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Work Experience
+                    {cf.buttons.addExperience}
                   </Button>
                 </div>
 
+                {/* ─── Step 3: Education ─── */}
                 <div className={activeStep === 3 ? "space-y-5" : "hidden"}>
                   {eduFields.map((field, index) => (
                     <Card key={field.id} className="relative border-border shadow-sm">
@@ -773,7 +804,7 @@ export default function CVForm() {
                             name={`education.${index}.institution`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Institution *</FormLabel>
+                                <FormLabel>{f.institution}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="University of Jakarta" {...field} />
                                 </FormControl>
@@ -786,7 +817,7 @@ export default function CVForm() {
                             name={`education.${index}.degree`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Degree *</FormLabel>
+                                <FormLabel>{f.degree}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Bachelor of Science" {...field} />
                                 </FormControl>
@@ -801,7 +832,7 @@ export default function CVForm() {
                             name={`education.${index}.field`}
                             render={({ field }) => (
                               <FormItem className="md:col-span-1">
-                                <FormLabel>Field of Study *</FormLabel>
+                                <FormLabel>{f.field}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Computer Science" {...field} />
                                 </FormControl>
@@ -814,7 +845,7 @@ export default function CVForm() {
                             name={`education.${index}.startDate`}
                             render={({ field }) => (
                               <FormItem className="md:col-span-1">
-                                <FormLabel>Start Date *</FormLabel>
+                                <FormLabel>{f.startDate}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="Aug 2016" {...field} />
                                 </FormControl>
@@ -827,7 +858,7 @@ export default function CVForm() {
                             name={`education.${index}.endDate`}
                             render={({ field }) => (
                               <FormItem className="md:col-span-1">
-                                <FormLabel>End Date</FormLabel>
+                                <FormLabel>{f.endDate}</FormLabel>
                                 <FormControl>
                                   <Input 
                                     placeholder="May 2020" 
@@ -847,7 +878,7 @@ export default function CVForm() {
                             name={`education.${index}.gpa`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>GPA (Optional)</FormLabel>
+                                <FormLabel>{f.gpa}</FormLabel>
                                 <FormControl>
                                   <Input placeholder="3.8/4.0" {...field} value={field.value || ""} />
                                 </FormControl>
@@ -865,14 +896,14 @@ export default function CVForm() {
                                     checked={field.value}
                                     onCheckedChange={(checked) => {
                                       field.onChange(checked);
-                                      if (checked) {
-                                        form.setValue(`education.${index}.endDate`, "");
-                                      }
+                                      if (checked) form.setValue(`education.${index}.endDate`, "");
                                     }}
                                   />
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
-                                  <FormLabel>I currently study here</FormLabel>
+                                  <FormLabel>
+                                    {language === "id" ? "Saya masih belajar di sini" : "I currently study here"}
+                                  </FormLabel>
                                 </div>
                               </FormItem>
                             )}
@@ -888,14 +919,16 @@ export default function CVForm() {
                     className="w-full border-dashed border-2 py-6 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Education
+                    {cf.buttons.addEducation}
                   </Button>
                 </div>
 
                 {/* ─── Step 4: Extra Sections ─── */}
                 <div className={activeStep === 4 ? "space-y-5" : "hidden"}>
                   <div>
-                    <p className="text-sm font-medium mb-3 text-muted-foreground">Choose a section to add:</p>
+                    <p className="text-sm font-medium mb-3 text-muted-foreground">
+                      {language === "id" ? "Pilih bagian untuk ditambahkan:" : "Choose a section to add:"}
+                    </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {PRESET_SECTIONS.map((preset) => (
                         <Button
@@ -916,15 +949,23 @@ export default function CVForm() {
                         onClick={() => appendSection({ sectionTitle: "", entries: [{ title: "", subtitle: "", date: "", description: "" }] })}
                       >
                         <Plus className="h-3.5 w-3.5 mr-2 flex-shrink-0" />
-                        Custom Section
+                        {language === "id" ? "Bagian Kustom" : "Custom Section"}
                       </Button>
                     </div>
                   </div>
 
                   {sectionFields.length === 0 && (
                     <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-lg">
-                      <p className="text-sm">Click one of the options above to add an extra section.</p>
-                      <p className="text-xs mt-1">This step is optional — skip it if not needed.</p>
+                      <p className="text-sm">
+                        {language === "id"
+                          ? "Klik salah satu opsi di atas untuk menambahkan bagian tambahan."
+                          : "Click one of the options above to add an extra section."}
+                      </p>
+                      <p className="text-xs mt-1">
+                        {language === "id"
+                          ? "Langkah ini opsional — lewati jika tidak diperlukan."
+                          : "This step is optional — skip it if not needed."}
+                      </p>
                     </div>
                   )}
 
@@ -934,38 +975,31 @@ export default function CVForm() {
                       sectionIndex={sectionIndex}
                       control={form.control}
                       onRemove={() => removeSection(sectionIndex)}
+                      f={f}
                     />
                   ))}
                 </div>
 
                 {/* ─── Step 5: Review ─── */}
                 <div className={activeStep === 5 ? "space-y-6" : "hidden"}>
-                  {/* ATS Readiness Checklist */}
                   {(() => {
-                    const v = form.watch();
-                    const checks = [
-                      { label: "Full name filled in", ok: !!v.fullName?.trim() },
-                      { label: "Job title filled in", ok: !!v.jobTitle?.trim() },
-                      { label: "Email address provided", ok: !!v.email?.trim() },
-                      { label: "Phone number provided", ok: !!v.phone?.trim() },
-                      { label: "Location provided", ok: !!v.location?.trim() },
-                      { label: "Professional summary written", ok: (v.summary?.trim().length ?? 0) >= 50 },
-                      { label: "At least 3 skills listed", ok: v.skills.split(",").map(s => s.trim()).filter(Boolean).length >= 3 },
-                      { label: "At least 1 work experience", ok: v.workExperience.length > 0 },
-                      { label: "Work experience has descriptions", ok: v.workExperience.every(e => e.description?.trim().length > 0) },
-                      { label: "At least 1 education entry", ok: v.education.length > 0 },
-                      { label: "LinkedIn URL provided", ok: !!v.linkedinUrl?.trim() },
-                    ];
-                    const passed = checks.filter(c => c.ok).length;
-                    const total = checks.length;
+                    const passed = atsChecks.filter(c => c.ok).length;
+                    const total = atsChecks.length;
                     const pct = Math.round((passed / total) * 100);
                     const color = pct >= 90 ? "text-green-600" : pct >= 60 ? "text-amber-600" : "text-destructive";
                     const bgColor = pct >= 90 ? "bg-green-50 border-green-200" : pct >= 60 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+                    const scoreLabel = language === "id" ? "Skor Kesiapan ATS" : "ATS Readiness Score";
+                    const statusMsg = pct >= 90
+                      ? (language === "id" ? "Luar biasa! CV Anda sudah dioptimalkan dengan baik." : "Excellent! Your CV is well-optimized.")
+                      : pct >= 60
+                      ? (language === "id" ? "Bagus. Lengkapi item yang tersisa untuk meningkatkan skor Anda." : "Good start. Complete the remaining items to improve your score.")
+                      : (language === "id" ? "Isi lebih banyak kolom untuk meningkatkan skor ATS Anda." : "Fill in more fields to improve your ATS score.");
+                    const checksLabel = language === "id" ? "pemeriksaan lulus" : "checks passed";
                     return (
                       <Card className={`border shadow-sm ${bgColor}`}>
                         <CardHeader className="pb-3">
                           <div className="flex items-center justify-between">
-                            <CardTitle className="text-base">ATS Readiness Score</CardTitle>
+                            <CardTitle className="text-base">{scoreLabel}</CardTitle>
                             <span className={`text-2xl font-bold ${color}`}>{pct}%</span>
                           </div>
                           <div className="w-full bg-muted rounded-full h-2 mt-1">
@@ -974,11 +1008,11 @@ export default function CVForm() {
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <CardDescription className="mt-1">{passed}/{total} checks passed — {pct >= 90 ? "Excellent! Your CV is well-optimized." : pct >= 60 ? "Good start. Complete the remaining items to improve your score." : "Fill in more fields to improve your ATS score."}</CardDescription>
+                          <CardDescription className="mt-1">{passed}/{total} {checksLabel} — {statusMsg}</CardDescription>
                         </CardHeader>
                         <CardContent className="pt-0">
                           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                            {checks.map((c) => (
+                            {atsChecks.map((c) => (
                               <li key={c.label} className="flex items-center gap-2 text-sm">
                                 {c.ok
                                   ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
@@ -991,52 +1025,53 @@ export default function CVForm() {
                       </Card>
                     );
                   })()}
+
                   <Card className="border-border/50 shadow-sm">
                     <CardContent className="pt-6 space-y-6">
                       <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="text-sm text-muted-foreground">{language === "id" ? "Nama Lengkap" : "Full Name"}</p>
                           <p className="font-medium">{form.watch("fullName") || "-"}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Job Title</p>
+                          <p className="text-sm text-muted-foreground">{cf.review.jobTitle}</p>
                           <p className="font-medium">{form.watch("jobTitle") || "-"}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="text-sm text-muted-foreground">{cf.review.email}</p>
                           <p className="font-medium">{form.watch("email") || "-"}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Phone</p>
+                          <p className="text-sm text-muted-foreground">{cf.review.phone}</p>
                           <p className="font-medium">{form.watch("phone") || "-"}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="text-sm text-muted-foreground">{cf.review.location}</p>
                           <p className="font-medium">{form.watch("location") || "-"}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">LinkedIn</p>
+                          <p className="text-sm text-muted-foreground">{cf.review.linkedin}</p>
                           <p className="font-medium break-all">{form.watch("linkedinUrl") || "-"}</p>
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Summary</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.summary}</p>
                         <p className="mt-1 whitespace-pre-wrap">{form.watch("summary") || "-"}</p>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Skills</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.skills}</p>
                         <p className="mt-1">{form.watch("skills") || "-"}</p>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Languages</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.languages}</p>
                         <p className="mt-1">{form.watch("languages") || "-"}</p>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Work Experience</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.workExperience}</p>
                         <div className="mt-2 space-y-3">
                           {expFields.length > 0 ? (
                             expFields.map((_, index) => {
@@ -1045,7 +1080,7 @@ export default function CVForm() {
                                 <div key={index} className="rounded-lg border p-4">
                                   <p className="font-medium">{item?.position || "-"} {item?.company ? `at ${item.company}` : ""}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
+                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? ` - ${cf.review.present}` : ""}
                                   </p>
                                   <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
                                     {(item?.description || "")
@@ -1064,13 +1099,13 @@ export default function CVForm() {
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">No work experience added.</p>
+                            <p className="text-sm text-muted-foreground">{cf.review.noExperience}</p>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Education</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.education}</p>
                         <div className="mt-2 space-y-3">
                           {eduFields.length > 0 ? (
                             eduFields.map((_, index) => {
@@ -1083,19 +1118,19 @@ export default function CVForm() {
                                     <p className="text-sm text-muted-foreground">GPA: {item.gpa}</p>
                                   )}
                                   <p className="text-sm text-muted-foreground">
-                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? " - Present" : ""}
+                                    {item?.startDate || "-"} {item?.endDate ? ` - ${item.endDate}` : item?.isCurrent ? ` - ${cf.review.present}` : ""}
                                   </p>
                                 </div>
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">No education added yet.</p>
+                            <p className="text-sm text-muted-foreground">{cf.review.noEducation}</p>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground">Extra Sections</p>
+                        <p className="text-sm text-muted-foreground">{cf.review.extraSections}</p>
                         <div className="mt-2 space-y-3">
                           {sectionFields.length > 0 ? (
                             sectionFields.map((_, sectionIndex) => {
@@ -1110,23 +1145,24 @@ export default function CVForm() {
                                         <p>{[entry.subtitle, entry.date].filter(Boolean).join(" · ") || "-"}</p>
                                         {entry.description && <p className="whitespace-pre-wrap">{entry.description}</p>}
                                       </div>
-                                    )) : <p>No items yet.</p>}
+                                    )) : <p>{cf.review.noItems}</p>}
                                   </div>
                                 </div>
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">No extra sections added.</p>
+                            <p className="text-sm text-muted-foreground">{cf.review.noExtra}</p>
                           )}
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
+
               </CardContent>
               <CardFooter className="bg-muted/30 border-t border-border/50 px-5 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-xs text-muted-foreground">
-                  Step {activeStep + 1} of {STEPS.length}: {activeStep === STEPS.length - 1 ? "review then save your CV" : "fill in this section to continue"}
+                  {cf.stepFooter(activeStep + 1, STEPS.length, activeStep === STEPS.length - 1)}
                 </div>
                 <div className="flex w-full gap-2 sm:w-auto">
                 <Button 
@@ -1137,12 +1173,12 @@ export default function CVForm() {
                   className="flex-1 sm:flex-none"
                 >
                   <ChevronLeft className="mr-2 h-4 w-4" />
-                  Back
+                  {cf.buttons.back}
                 </Button>
                 
                 {activeStep < STEPS.length - 2 ? (
                   <Button type="button" onClick={nextStep} disabled={isSubmitting} className="flex-1 sm:flex-none">
-                    Next
+                    {cf.buttons.next}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : activeStep === STEPS.length - 2 ? (
@@ -1158,7 +1194,7 @@ export default function CVForm() {
                     disabled={isSubmitting}
                     className="flex-1 sm:flex-none"
                   >
-                    Review CV
+                    {cf.buttons.reviewCV}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
@@ -1171,12 +1207,12 @@ export default function CVForm() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        {cf.buttons.saving}
                       </>
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Save CV
+                        {cf.buttons.saveCV}
                       </>
                     )}
                   </Button>
@@ -1195,9 +1231,9 @@ export default function CVForm() {
               <div className="bg-muted/50 px-4 py-2.5 border-b text-sm font-medium text-muted-foreground flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
                 <Eye className="h-3.5 w-3.5" />
-                Live Preview
+                {cf.buttons.livePreview}
                 </span>
-                <span className="text-[11px] font-normal">Scroll to see the full page</span>
+                <span className="text-[11px] font-normal">{cf.buttons.livePreviewScroll}</span>
               </div>
               <div className="max-h-[calc(100vh-150px)] overflow-y-auto overflow-x-hidden bg-slate-100 p-4 overscroll-contain">
                 <div
@@ -1226,7 +1262,7 @@ export default function CVForm() {
                 </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Preview updates automatically as you type</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">{cf.buttons.previewUpdates}</p>
           </div>
 
         </div>{/* end flex split */}
