@@ -1059,20 +1059,25 @@ export default function CVForm() {
                   </Card>
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/30 border-t border-border/50 px-5 py-3 flex justify-between">
+              <CardFooter className="bg-muted/30 border-t border-border/50 px-5 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-xs text-muted-foreground">
+                  Langkah {activeStep + 1} dari {STEPS.length}: {activeStep === STEPS.length - 1 ? "cek ulang lalu simpan CV" : "isi bagian ini lalu lanjutkan"}
+                </div>
+                <div className="flex w-full gap-2 sm:w-auto">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={prevStep} 
                   disabled={activeStep === 0 || isSubmitting}
+                  className="flex-1 sm:flex-none"
                 >
                   <ChevronLeft className="mr-2 h-4 w-4" />
-                  Previous
+                  Kembali
                 </Button>
                 
                 {activeStep < STEPS.length - 2 ? (
-                  <Button type="button" onClick={nextStep} disabled={isSubmitting}>
-                    Next Step
+                  <Button type="button" onClick={nextStep} disabled={isSubmitting} className="flex-1 sm:flex-none">
+                    Lanjut
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : activeStep === STEPS.length - 2 ? (
@@ -1086,8 +1091,9 @@ export default function CVForm() {
                       }
                     }}
                     disabled={isSubmitting}
+                    className="flex-1 sm:flex-none"
                   >
-                    Review
+                    Review CV
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
@@ -1095,20 +1101,22 @@ export default function CVForm() {
                     type="button"
                     onClick={form.handleSubmit(onSubmit)}
                     disabled={isSubmitting}
+                    className="flex-1 sm:flex-none"
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        Menyimpan...
                       </>
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Save CV
+                        Simpan CV
                       </>
                     )}
                   </Button>
                 )}
+                </div>
               </CardFooter>
             </Card>
           </form>

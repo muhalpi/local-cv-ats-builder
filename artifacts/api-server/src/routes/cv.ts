@@ -247,8 +247,9 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
 <title>CV – ${escapeHtml(cv.fullName)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: white; line-height: 1.5; }
-  .page { max-width: 800px; margin: 0 auto; padding: 40px 48px; }
+  html { background: #f1f5f9; }
+  body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
   .header { border-bottom: 2px solid #1e40af; padding-bottom: 16px; margin-bottom: 24px; }
   .name { font-size: 24pt; font-weight: 700; color: #1e40af; letter-spacing: -0.5px; }
   .job-title { font-size: 13pt; color: #3b82f6; font-weight: 500; margin-top: 2px; }
@@ -270,11 +271,17 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   .tag { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: #1e40af; }
   @page {
     size: A4;
-    margin: 18mm 15mm;
+    margin: 16mm 15mm;
+  }
+  @media screen {
+    body { padding: 24px 0; }
+    .page { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12); }
   }
   @media print {
-    body { font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { max-width: 100%; padding: 0; margin: 0; }
+    html, body { width: auto; min-height: auto; background: white; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { padding: 0; }
+    .page { width: auto; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
+    section, .entry { break-inside: avoid-page; page-break-inside: avoid; }
     a { color: #475569 !important; }
     .contact-link { color: #475569 !important; }
     .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
