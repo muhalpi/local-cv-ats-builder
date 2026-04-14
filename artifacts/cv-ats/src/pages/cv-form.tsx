@@ -377,6 +377,13 @@ export default function CVForm() {
       JSON.stringify(watchedValues.extraSections),
     ]
   );
+  const previewDocument = useMemo(
+    () => previewHtml.replace(
+      "</style>",
+      "html, body { overflow: hidden !important; scrollbar-width: none; } body::-webkit-scrollbar { display: none; }</style>",
+    ),
+    [previewHtml],
+  );
 
   if (isEditing && isLoadingInitial) {
     return (
@@ -1122,14 +1129,15 @@ export default function CVForm() {
               <div className="max-h-[calc(100vh-150px)] overflow-y-auto overflow-x-hidden bg-slate-100 p-4 overscroll-contain">
                 <div
                   className="mx-auto bg-white shadow-sm"
-                  style={{ width: '568px', height: '910px' }}
+                  style={{ width: '568px', minHeight: '1120px' }}
                 >
                   <iframe
-                    srcDoc={previewHtml}
+                    srcDoc={previewDocument}
                     title="CV Preview"
+                    scrolling="no"
                     style={{
                       width: '820px',
-                      height: '1315px',
+                      height: '1616px',
                       border: 'none',
                       transform: 'scale(0.693)',
                       transformOrigin: 'top left',
