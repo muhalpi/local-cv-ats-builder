@@ -392,20 +392,20 @@ export default function CVForm() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background/50">
       <Navbar />
-      <main className="flex-1 px-4 py-8">
-        <div className="mx-auto max-w-[1440px]">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-primary">
+      <main className="flex-1 px-3 py-5 sm:px-4 lg:py-6">
+        <div className="mx-auto max-w-[1320px]">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">
             {isEditing ? "Edit CV" : "Create New CV"}
           </h1>
-          <p className="text-muted-foreground mt-1">Fill out the fields to build your professional profile.</p>
+          <p className="text-sm text-muted-foreground mt-1 md:text-base">Fill out the fields to build your professional profile.</p>
         </div>
 
-        <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0">
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,680px)_minmax(520px,1fr)]">
+          <div className="min-w-0">
 
         {/* Stepper */}
-        <div className="mb-8 flex items-center justify-between relative">
+        <div className="mb-5 flex items-center justify-between relative">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-border rounded-full z-0" />
           <div 
             className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full z-0 transition-all duration-300"
@@ -422,7 +422,7 @@ export default function CVForm() {
               >
                 {idx + 1}
               </div>
-              <span className={`text-xs font-medium hidden sm:block ${idx <= activeStep ? "text-foreground" : "text-muted-foreground"}`}>
+              <span className={`text-[11px] font-medium hidden sm:block ${idx <= activeStep ? "text-foreground" : "text-muted-foreground"}`}>
                 {step.title}
               </span>
             </div>
@@ -444,7 +444,7 @@ export default function CVForm() {
             className="space-y-8"
           >
             <Card className="border-border/50 shadow-sm">
-              <CardHeader className="bg-muted/30 border-b border-border/50 pb-4">
+              <CardHeader className="bg-muted/30 border-b border-border/50 px-5 py-4">
                 <CardTitle>{STEPS[activeStep].title}</CardTitle>
                 <CardDescription>
                   {activeStep === 0 && "Your contact information and professional headline."}
@@ -455,9 +455,9 @@ export default function CVForm() {
                   {activeStep === 5 && "Review everything before saving your CV."}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className={activeStep === 0 ? "space-y-6" : "hidden"}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="px-5 pt-5">
+                <div className={activeStep === 0 ? "space-y-5" : "hidden"}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="fullName"
@@ -485,7 +485,7 @@ export default function CVForm() {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="email"
@@ -513,7 +513,7 @@ export default function CVForm() {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="location"
@@ -556,7 +556,7 @@ export default function CVForm() {
                   />
                 </div>
 
-                <div className={activeStep === 1 ? "space-y-6" : "hidden"}>
+                <div className={activeStep === 1 ? "space-y-5" : "hidden"}>
                   <FormField
                     control={form.control}
                     name="summary"
@@ -566,7 +566,7 @@ export default function CVForm() {
                         <FormControl>
                           <Textarea 
                             placeholder="A dedicated software engineer with 5 years of experience..." 
-                            className="h-32 resize-none" 
+                            className="h-28 resize-none" 
                             {...field} 
                           />
                         </FormControl>
@@ -605,7 +605,7 @@ export default function CVForm() {
                   />
                 </div>
 
-                <div className={activeStep === 2 ? "space-y-6" : "hidden"}>
+                <div className={activeStep === 2 ? "space-y-5" : "hidden"}>
                   {expFields.map((field, index) => (
                     <Card key={field.id} className="relative border-border shadow-sm">
                       <Button
@@ -617,7 +617,7 @@ export default function CVForm() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                      <CardContent className="pt-6 space-y-4">
+                      <CardContent className="pt-5 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
@@ -710,7 +710,7 @@ export default function CVForm() {
                               <FormControl>
                                 <Textarea 
                                   placeholder="• Developed new features using React..." 
-                                  className="h-32 resize-none" 
+                                  className="h-28 resize-none" 
                                   {...field} 
                                 />
                               </FormControl>
@@ -726,14 +726,14 @@ export default function CVForm() {
                     type="button"
                     variant="outline"
                     onClick={() => appendExp({ company: "", position: "", startDate: "", endDate: "", isCurrent: false, description: "" })}
-                    className="w-full border-dashed border-2 py-8 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
+                    className="w-full border-dashed border-2 py-6 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Work Experience
                   </Button>
                 </div>
 
-                <div className={activeStep === 3 ? "space-y-6" : "hidden"}>
+                <div className={activeStep === 3 ? "space-y-5" : "hidden"}>
                   {eduFields.map((field, index) => (
                     <Card key={field.id} className="relative border-border shadow-sm">
                       <Button
@@ -745,7 +745,7 @@ export default function CVForm() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                      <CardContent className="pt-6 space-y-4">
+                      <CardContent className="pt-5 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
@@ -864,7 +864,7 @@ export default function CVForm() {
                     type="button"
                     variant="outline"
                     onClick={() => appendEdu({ institution: "", degree: "", field: "", startDate: "", endDate: "", isCurrent: false, gpa: "" })}
-                    className="w-full border-dashed border-2 py-8 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
+                    className="w-full border-dashed border-2 py-6 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Education
@@ -872,7 +872,7 @@ export default function CVForm() {
                 </div>
 
                 {/* ─── Step 4: Extra Sections ─── */}
-                <div className={activeStep === 4 ? "space-y-6" : "hidden"}>
+                <div className={activeStep === 4 ? "space-y-5" : "hidden"}>
                   <div>
                     <p className="text-sm font-medium mb-3 text-muted-foreground">Pilih seksi yang ingin ditambahkan:</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1052,7 +1052,7 @@ export default function CVForm() {
                   </Card>
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/30 border-t border-border/50 py-4 flex justify-between">
+              <CardFooter className="bg-muted/30 border-t border-border/50 px-5 py-3 flex justify-between">
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1110,28 +1110,37 @@ export default function CVForm() {
           </div>{/* end form column */}
 
           {/* Live Preview Panel */}
-          <div className="hidden xl:flex flex-col w-[390px] flex-shrink-0 sticky top-4">
-            <div className="border rounded-lg shadow-sm bg-white overflow-hidden">
-              <div className="bg-muted/50 px-4 py-2 border-b text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <div className="hidden xl:flex min-w-0 flex-col sticky top-4">
+            <div className="border rounded-xl shadow-sm bg-white overflow-hidden">
+              <div className="bg-muted/50 px-4 py-2.5 border-b text-sm font-medium text-muted-foreground flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2">
                 <Eye className="h-3.5 w-3.5" />
                 Live Preview
+                </span>
+                <span className="text-[11px] font-normal">Scroll preview untuk melihat halaman penuh</span>
               </div>
-              <div style={{ height: '620px', overflow: 'hidden', position: 'relative' }}>
-                <iframe
-                  srcDoc={previewHtml}
-                  title="CV Preview"
-                  style={{
-                    width: '820px',
-                    height: '1300px',
-                    border: 'none',
-                    transform: 'scale(0.476)',
-                    transformOrigin: 'top left',
-                    pointerEvents: 'none',
-                  }}
-                />
+              <div className="max-h-[calc(100vh-150px)] overflow-y-auto overflow-x-hidden bg-slate-100 p-4 overscroll-contain">
+                <div
+                  className="mx-auto bg-white shadow-sm"
+                  style={{ width: '568px', height: '910px' }}
+                >
+                  <iframe
+                    srcDoc={previewHtml}
+                    title="CV Preview"
+                    style={{
+                      width: '820px',
+                      height: '1315px',
+                      border: 'none',
+                      transform: 'scale(0.693)',
+                      transformOrigin: 'top left',
+                      pointerEvents: 'none',
+                      display: 'block',
+                    }}
+                  />
+                </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Preview diperbarui otomatis</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">Preview diperbarui otomatis saat data berubah</p>
           </div>
 
         </div>{/* end flex split */}
