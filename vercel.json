@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://cv-ats-generator-muhalpis-projects.vercel.app/api/:path*"
+    }
+  ]
+}
