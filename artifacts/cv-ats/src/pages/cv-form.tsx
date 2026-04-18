@@ -391,10 +391,10 @@ export default function CVForm() {
         toast({ title: cf.toast.created, description: cf.toast.createdDesc });
         setLocation(`/cv/${result.id}`);
       }
-    } catch {
+    } catch (error) {
       toast({
         title: cf.toast.errorTitle,
-        description: cf.toast.errorDesc,
+        description: error instanceof Error ? error.message : cf.toast.errorDesc,
         variant: "destructive",
       });
     }

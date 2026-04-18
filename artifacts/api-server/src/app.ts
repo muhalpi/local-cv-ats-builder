@@ -5,6 +5,7 @@ import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
 
 const app: Express = express();
+const requestBodyLimit = "6mb";
 
 app.use(
   pinoHttp({
@@ -26,8 +27,8 @@ app.use(
   }),
 );
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: requestBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
 
 app.use("/api", router);
 

@@ -3,10 +3,11 @@ import cors from "cors";
 import router from "./routes/index.js";
 
 const app = express();
+const requestBodyLimit = "6mb";
 
 app.use(cors({ origin: "*" }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: requestBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
 
 app.use((req, _res, next) => {
   console.log(`[api] ${req.method} ${req.url}`);
