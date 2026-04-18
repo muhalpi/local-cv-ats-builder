@@ -35,6 +35,9 @@ function composeCvStyleValue(cvLanguage: CVLanguageOption, cvTheme: CVThemeOptio
 }
 
 const MAX_PROFILE_PHOTO_SIZE_BYTES = 2 * 1024 * 1024;
+const PROFILE_PHOTO_RATIO = 3 / 4;
+const PROFILE_PHOTO_TARGET_WIDTH = 480;
+const PROFILE_PHOTO_JPEG_QUALITY = 0.8;
 
 function makeSchema(v: Translations["cvForm"]["validation"]) {
   const workExperienceSchema = z.object({
@@ -337,6 +340,58 @@ export default function CVForm() {
       reader.readAsDataURL(file);
     });
 
+  const dataUrlToImage = (dataUrl: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("Failed to load image"));
+      image.src = dataUrl;
+    });
+
+  const optimizeProfilePhoto = async (dataUrl: string): Promise<string> => {
+    const image = await dataUrlToImage(dataUrl);
+
+    const sourceWidth = image.naturalWidth;
+    const sourceHeight = image.naturalHeight;
+    const sourceRatio = sourceWidth / sourceHeight;
+
+    let cropWidth = sourceWidth;
+    let cropHeight = sourceHeight;
+
+    if (sourceRatio > PROFILE_PHOTO_RATIO) {
+      cropWidth = Math.round(sourceHeight * PROFILE_PHOTO_RATIO);
+    } else if (sourceRatio < PROFILE_PHOTO_RATIO) {
+      cropHeight = Math.round(sourceWidth / PROFILE_PHOTO_RATIO);
+    }
+
+    const cropX = Math.floor((sourceWidth - cropWidth) / 2);
+    const cropY = Math.floor((sourceHeight - cropHeight) / 2);
+
+    const outputWidth = Math.min(cropWidth, PROFILE_PHOTO_TARGET_WIDTH);
+    const outputHeight = Math.round(outputWidth / PROFILE_PHOTO_RATIO);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Failed to process image");
+
+    context.drawImage(
+      image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      outputWidth,
+      outputHeight,
+    );
+
+    return canvas.toDataURL("image/jpeg", PROFILE_PHOTO_JPEG_QUALITY);
+  };
+
   const handleProfilePhotoUpload = async (file: File | undefined, onChange: (value: string) => void) => {
     if (!file) return;
 
@@ -359,8 +414,9 @@ export default function CVForm() {
     }
 
     try {
-      const dataUrl = await fileToDataUrl(file);
-      onChange(dataUrl);
+      const originalDataUrl = await fileToDataUrl(file);
+      const optimizedDataUrl = await optimizeProfilePhoto(originalDataUrl);
+      onChange(optimizedDataUrl);
     } catch {
       toast({
         title: language === "id" ? "Gagal membaca foto" : "Failed to read photo",
