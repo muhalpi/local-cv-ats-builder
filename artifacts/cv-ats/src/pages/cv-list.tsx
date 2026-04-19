@@ -1,11 +1,18 @@
 import { Link } from "wouter";
-import { useListCVs, getListCVsQueryKey, useDeleteCV } from "@workspace/api-client-react";
+import { useRef, useState, type ChangeEvent } from "react";
+import {
+  useListCVs,
+  getListCVsQueryKey,
+  useDeleteCV,
+  exportCVBackup,
+  importCVBackup,
+} from "@/lib/local-cv-api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Plus, Trash2, Edit, Eye, Clock } from "lucide-react";
+import { FileText, Plus, Trash2, Edit, Eye, Clock, Download, Upload, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -28,6 +35,8 @@ export default function CVList() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const l = t.cvList;
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const handleDelete = async (id: number) => {
     deleteCV.mutate({ id }, {
@@ -48,6 +57,58 @@ export default function CVList() {
     });
   };
 
+  const handleExportBackup = async () => {
+    try {
+      const json = await exportCVBackup();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `cv-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: l.toastExported,
+        description: l.toastExportedDesc,
+      });
+    } catch {
+      toast({
+        title: l.toastExportFailed,
+        description: l.toastExportFailedDesc,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const raw = await file.text();
+      const result = await importCVBackup(raw);
+      await queryClient.invalidateQueries({ queryKey: getListCVsQueryKey() });
+
+      toast({
+        title: l.toastImportSuccessTitle,
+        description: l.toastImportSuccessDesc(result.imported, result.skipped),
+      });
+    } catch (error) {
+      toast({
+        title: l.toastImportFailed,
+        description: error instanceof Error ? error.message : l.toastImportFailedDesc,
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background/50">
       <Navbar />
@@ -57,12 +118,44 @@ export default function CVList() {
             <h1 className="text-3xl font-bold tracking-tight text-primary">{l.title}</h1>
             <p className="text-muted-foreground mt-1">{l.subtitle}</p>
           </div>
-          <Link href="/cv/new">
-            <Button className="w-full sm:w-auto shadow-sm">
-              <Plus className="mr-2 h-4 w-4" />
-              {l.createNew}
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={handleImportFile}
+            />
+            <Button variant="outline" className="shadow-sm" onClick={handleExportBackup}>
+              <Download className="mr-2 h-4 w-4" />
+              {l.exportBackup}
             </Button>
-          </Link>
+            <Button
+              variant="outline"
+              className="shadow-sm"
+              onClick={() => importInputRef.current?.click()}
+              disabled={isImporting}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isImporting ? l.importingBackup : l.importBackup}
+            </Button>
+            <Link href="/cv/new">
+              <Button className="w-full sm:w-auto shadow-sm">
+                <Plus className="mr-2 h-4 w-4" />
+                {l.createNew}
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="mb-6 rounded-xl border border-emerald-300/60 bg-emerald-50/80 px-4 py-3 text-emerald-900">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="h-5 w-5 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium">{l.localStorageTitle}</p>
+              <p className="text-sm text-emerald-900/85">{l.localStorageDesc}</p>
+            </div>
+          </div>
         </div>
 
         {isLoading ? (
@@ -87,6 +180,9 @@ export default function CVList() {
         ) : error ? (
           <div className="text-center py-12 border rounded-xl bg-destructive/5 text-destructive">
             <p>{l.failedLoad}</p>
+            {error instanceof Error ? (
+              <p className="mt-2 text-sm text-destructive/80">{error.message}</p>
+            ) : null}
           </div>
         ) : cvs?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-4 text-center border-2 border-dashed rounded-xl bg-card">

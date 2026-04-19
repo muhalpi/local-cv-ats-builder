@@ -3,7 +3,8 @@ import { useParams, useLocation } from "wouter";
 import { useForm, useFieldArray, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useCreateCV, useUpdateCV, useGetCV, getGetCVQueryKey } from "@workspace/api-client-react";
+import { useCreateCV, useUpdateCV, useGetCV, getGetCVQueryKey } from "@/lib/local-cv-api";
+import { useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -236,6 +237,7 @@ export default function CVForm() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { t, language } = useLanguage();
   const cf = t.cvForm;
   const f = cf.fields;
@@ -440,10 +442,12 @@ export default function CVForm() {
     try {
       if (isEditing) {
         await updateCV.mutateAsync({ id: id as number, data: apiData });
+        await queryClient.invalidateQueries({ queryKey: ["local-cv"] });
         toast({ title: cf.toast.updated, description: cf.toast.updatedDesc });
         setLocation(`/cv/${id}`);
       } else {
         const result = await createCV.mutateAsync({ data: apiData });
+        await queryClient.invalidateQueries({ queryKey: ["local-cv"] });
         toast({ title: cf.toast.created, description: cf.toast.createdDesc });
         setLocation(`/cv/${result.id}`);
       }

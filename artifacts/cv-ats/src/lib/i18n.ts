@@ -40,6 +40,9 @@ export const translations = {
       title: "My CVs",
       subtitle: "Manage and edit your professional resumes.",
       createNew: "Create New CV",
+      exportBackup: "Export Backup",
+      importBackup: "Import Backup",
+      importingBackup: "Importing...",
       loading: "Loading...",
       failedLoad: "Failed to load CVs. Please try again later.",
       noCVsTitle: "No CVs found",
@@ -47,6 +50,9 @@ export const translations = {
         "You haven't created any CVs yet. Start building your professional profile to land your dream job.",
       createFirst: "Create Your First CV",
       updatedAt: "Updated",
+      localStorageTitle: "Stored locally on this device",
+      localStorageDesc:
+        "Your CV data stays in this browser only. Export a backup JSON regularly to avoid data loss when clearing browser data or changing devices.",
       deleteTitle: "Are you absolutely sure?",
       deleteDesc: "This will permanently delete this CV. This action cannot be undone.",
       cancel: "Cancel",
@@ -56,6 +62,15 @@ export const translations = {
       toastDeletedDesc: "Your CV has been successfully removed.",
       toastDeleteFailed: "Failed to delete",
       toastDeleteFailedDesc: "An error occurred while deleting your CV.",
+      toastExported: "Backup exported",
+      toastExportedDesc: "Your local CV backup has been downloaded as JSON.",
+      toastExportFailed: "Export failed",
+      toastExportFailedDesc: "Unable to export your backup. Please try again.",
+      toastImportSuccessTitle: "Backup imported",
+      toastImportSuccessDesc: (imported: number, skipped: number) =>
+        `Imported ${imported} CV(s). Skipped ${skipped} invalid or duplicate item(s).`,
+      toastImportFailed: "Import failed",
+      toastImportFailedDesc: "Unable to import the selected backup file.",
     },
     cvForm: {
       editTitle: "Edit CV",
@@ -247,6 +262,9 @@ export const translations = {
       title: "CV Saya",
       subtitle: "Kelola dan edit resume profesional Anda.",
       createNew: "Buat CV Baru",
+      exportBackup: "Ekspor Backup",
+      importBackup: "Impor Backup",
+      importingBackup: "Mengimpor...",
       loading: "Memuat...",
       failedLoad: "Gagal memuat CV. Silakan coba lagi nanti.",
       noCVsTitle: "Belum ada CV",
@@ -254,6 +272,9 @@ export const translations = {
         "Anda belum membuat CV apa pun. Mulailah membangun profil profesional Anda untuk mendapatkan pekerjaan impian.",
       createFirst: "Buat CV Pertama Anda",
       updatedAt: "Diperbarui",
+      localStorageTitle: "Disimpan lokal di perangkat ini",
+      localStorageDesc:
+        "Data CV Anda hanya tersimpan di browser ini. Ekspor backup JSON secara berkala agar tidak hilang saat data browser dibersihkan atau saat ganti perangkat.",
       deleteTitle: "Apakah Anda yakin?",
       deleteDesc: "CV ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.",
       cancel: "Batal",
@@ -263,6 +284,15 @@ export const translations = {
       toastDeletedDesc: "CV Anda telah berhasil dihapus.",
       toastDeleteFailed: "Gagal menghapus",
       toastDeleteFailedDesc: "Terjadi kesalahan saat menghapus CV Anda.",
+      toastExported: "Backup berhasil diekspor",
+      toastExportedDesc: "Backup CV lokal Anda telah diunduh dalam format JSON.",
+      toastExportFailed: "Gagal ekspor backup",
+      toastExportFailedDesc: "Tidak dapat mengekspor backup. Silakan coba lagi.",
+      toastImportSuccessTitle: "Backup berhasil diimpor",
+      toastImportSuccessDesc: (imported: number, skipped: number) =>
+        `Berhasil impor ${imported} CV. ${skipped} item tidak valid atau duplikat dilewati.`,
+      toastImportFailed: "Gagal impor backup",
+      toastImportFailedDesc: "Tidak dapat mengimpor file backup yang dipilih.",
     },
     cvForm: {
       editTitle: "Edit CV",
@@ -417,4 +447,4 @@ export const translations = {
   },
 } as const;
 
-export type Translations = typeof translations.en;
+export type Translations = (typeof translations)[Language];

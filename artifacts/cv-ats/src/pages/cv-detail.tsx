@@ -1,5 +1,5 @@
 import { useParams, useLocation } from "wouter";
-import { useGetCVHtml, getGetCVHtmlQueryKey } from "@workspace/api-client-react";
+import { useGetCVHtml, getGetCVHtmlQueryKey } from "@/lib/local-cv-api";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
