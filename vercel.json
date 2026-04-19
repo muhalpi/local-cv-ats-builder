@@ -1,8 +1,7 @@
 {
-  "buildCommand": "pnpm build:vercel",
+  "buildCommand": "pnpm --filter @workspace/cv-ats run build:vercel",
   "outputDirectory": "artifacts/cv-ats/dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
