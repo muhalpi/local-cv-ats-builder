@@ -1,0 +1,3 @@
+# This project is deployed as a static Vite app from artifacts/cv-ats/dist.
+# Ignore legacy serverless API bridge so Vercel doesn't try to compile it.
+api/**
