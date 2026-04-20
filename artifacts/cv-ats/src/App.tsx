@@ -1,14 +1,15 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import NotFound from "@/pages/not-found";
 
-import Home from "@/pages/home";
-import CVList from "@/pages/cv-list";
-import CVForm from "@/pages/cv-form";
-import CVDetail from "@/pages/cv-detail";
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/home"));
+const CVList = lazy(() => import("@/pages/cv-list"));
+const CVForm = lazy(() => import("@/pages/cv-form"));
+const CVDetail = lazy(() => import("@/pages/cv-detail"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +39,9 @@ function App() {
       <TooltipProvider>
         <LanguageProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
+            <Suspense fallback={<div className="min-h-[40vh]" />}>
+              <Router />
+            </Suspense>
           </WouterRouter>
           <Toaster />
         </LanguageProvider>
