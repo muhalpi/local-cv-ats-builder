@@ -16,11 +16,6 @@ export const translations = {
         "A quiet, professional workspace to help you land your dream job. Calm, encouraging, and does all the heavy lifting for you.",
       startCreating: "Start Creating Now",
       viewMyCVs: "View My CVs",
-      donationTitle: "Support This Project",
-      donationSubtitle:
-        "If this app helps you, you can support development through the donation accounts below.",
-      accountNameLabel: "Account Name",
-      accountNameValue: "Muhammad Alfi",
       attributionLabel: "Created by",
       features: {
         ats: {
@@ -244,11 +239,6 @@ export const translations = {
         "Ruang kerja yang tenang dan profesional untuk membantu Anda mendapatkan pekerjaan impian. Mudah, mendukung, dan mengerjakan semua hal teknis untuk Anda.",
       startCreating: "Mulai Buat Sekarang",
       viewMyCVs: "Lihat CV Saya",
-      donationTitle: "Dukung Project Ini",
-      donationSubtitle:
-        "Kalau aplikasi ini bermanfaat, kamu bisa dukung pengembangan lewat rekening donasi berikut.",
-      accountNameLabel: "Atas Nama",
-      accountNameValue: "Muhammad Alfi",
       attributionLabel: "Dibuat oleh",
       features: {
         ats: {

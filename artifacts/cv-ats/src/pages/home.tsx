@@ -2,18 +2,12 @@ import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, FileText, Zap, Download, HandHeart } from "lucide-react";
+import { CheckCircle2, FileText, Zap, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
   const { t } = useLanguage();
   const h = t.home;
-  const donationAccounts = [
-    { bank: "BCA", number: "8620415481" },
-    { bank: "BRI", number: "313601048468537" },
-    { bank: "Bank Neo", number: "5859459277402417" },
-    { bank: "SeaBank", number: "901901068426" },
-  ];
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -93,32 +87,6 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </section>
-        <section className="w-full pb-12 md:pb-20">
-          <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-            <Card className="border-primary/20 bg-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-primary">
-                  <HandHeart className="h-5 w-5" />
-                  {h.donationTitle}
-                </CardTitle>
-                <CardDescription>{h.donationSubtitle}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  {h.accountNameLabel}: <span className="font-medium text-foreground">{h.accountNameValue}</span>
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {donationAccounts.map((account) => (
-                    <div key={account.bank} className="rounded-lg border bg-background px-4 py-3">
-                      <p className="text-sm font-semibold text-foreground">{account.bank}</p>
-                      <p className="font-mono text-sm text-muted-foreground">{account.number}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </section>
       </main>
