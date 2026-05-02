@@ -236,7 +236,7 @@ export const translations = {
     home: {
       title: "Buat CV Profesional yang Ramah ATS",
       subtitle:
-        "CV yang kuat dimulai dari fondasi yang tepat.<br>Buat, simpan, dan unduh CV profesional secara lokal <strong>tanpa biaya</strong>, <strong>tanpa kerumitan</strong>, <strong>tanpa khawatir data disalahgunakan</strong>.",
+        "CV yang kuat dimulai dari fondasi yang tepat.<br>Buat, simpan, dan unduh CV profesional secara lokal <strong>tanpa biaya</strong>,<br><strong>tanpa kerumitan</strong>, <strong>tanpa khawatir data disalahgunakan</strong>.",
       startCreating: "Mulai Buat Sekarang",
       viewMyCVs: "Lihat CV Saya",
       attributionLabel: "Dibuat oleh",
