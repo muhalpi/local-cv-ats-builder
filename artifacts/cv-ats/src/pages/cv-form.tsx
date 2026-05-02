@@ -561,7 +561,7 @@ export default function CVForm() {
 
   if (isEditing && isLoadingInitial) {
     return (
-      <div className="flex min-h-[100dvh] flex-col bg-background/50">
+      <div className="flex min-h-[100dvh] flex-col">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -571,12 +571,12 @@ export default function CVForm() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background/50">
+    <div className="flex min-h-[100dvh] flex-col">
       <Navbar />
       <main className="flex-1 px-3 py-5 sm:px-4 lg:py-6">
         <div className="mx-auto max-w-[1320px]">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-sky-700 md:text-3xl">
             {isEditing ? cf.editTitle : cf.createTitle}
           </h1>
           <p className="text-sm text-muted-foreground mt-1 md:text-base">{cf.formSubtitle}</p>

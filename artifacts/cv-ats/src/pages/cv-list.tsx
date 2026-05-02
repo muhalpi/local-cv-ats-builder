@@ -110,12 +110,12 @@ export default function CVList() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background/50">
+    <div className="flex min-h-[100dvh] flex-col">
       <Navbar />
       <main className="flex-1 container mx-auto max-w-6xl px-4 py-8 md:py-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">{l.title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-sky-700">{l.title}</h1>
             <p className="text-muted-foreground mt-1">{l.subtitle}</p>
           </div>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -185,8 +185,8 @@ export default function CVList() {
             ) : null}
           </div>
         ) : cvs?.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-4 text-center border-2 border-dashed rounded-xl bg-card">
-            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary">
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center border-2 border-dashed border-slate-200 rounded-2xl card-glass">
+            <div className="h-20 w-20 rounded-full bg-sky-500/10 border border-sky-500/15 flex items-center justify-center mb-6 text-sky-600">
               <FileText className="h-10 w-10" />
             </div>
             <h2 className="text-2xl font-semibold mb-2 text-foreground">{l.noCVsTitle}</h2>
@@ -201,9 +201,9 @@ export default function CVList() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {cvs?.map((cv) => (
-              <Card key={cv.id} className="flex flex-col justify-between hover:border-primary/50 transition-colors bg-card shadow-sm">
+              <Card key={cv.id} className="flex flex-col justify-between transition-all duration-300 card-glass border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-xl text-primary truncate" title={cv.fullName}>
+                  <CardTitle className="text-xl text-sky-700 truncate" title={cv.fullName}>
                     {cv.fullName}
                   </CardTitle>
                   <CardDescription className="font-medium text-foreground truncate" title={cv.jobTitle}>
