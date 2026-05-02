@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export default function Home() {
   const { t, language } = useLanguage();
   const h = t.home;
+  const subtitleOptions = (h as typeof h & { subtitleOptions: string[] }).subtitleOptions;
+  const [activeSubtitle, setActiveSubtitle] = useState(0);
 
   return (
     <div className="min-h-[100dvh] flex flex-col text-slate-900 overflow-x-hidden">
@@ -25,7 +28,7 @@ export default function Home() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-700 text-sm font-medium mb-8">
               <span className="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse-glow-ring" />
-              {language === "id" ? "ATS-Optimized untuk 2025" : "ATS-Optimized for 2025"}
+              {language === "id" ? "ATS-Optimized untuk 2026" : "ATS-Optimized for 2026"}
             </div>
 
             {/* Headline */}
@@ -33,10 +36,25 @@ export default function Home() {
               {h.title}
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-lg md:text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-              {h.subtitle}
+            {/* Subtitle with copywriting options */}
+            <p className="text-lg md:text-xl text-slate-600 mb-6 max-w-2xl mx-auto leading-relaxed min-h-[4rem] transition-all duration-300">
+              {subtitleOptions[activeSubtitle]}
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+              {subtitleOptions.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveSubtitle(i)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                    activeSubtitle === i
+                      ? "bg-sky-600 text-white border-sky-600 shadow-sm"
+                      : "bg-white/70 text-slate-500 border-slate-200 hover:border-sky-300 hover:text-sky-700"
+                  }`}
+                >
+                  Opsi {i + 1}
+                </button>
+              ))}
+            </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24">

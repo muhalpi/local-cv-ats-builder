@@ -14,6 +14,12 @@ export const translations = {
       title: "Build a Professional, ATS-Friendly CV",
       subtitle:
         "A quiet, professional workspace to help you land your dream job. Calm, encouraging, and does all the heavy lifting for you.",
+      subtitleOptions: [
+        "A quiet, professional workspace to help you land your dream job. Calm, encouraging, and does all the heavy lifting for you.",
+        "Build an ATS-friendly CV in minutes. Fill in your details, we handle the formatting — ready to apply to your dream company.",
+        "A strong CV starts with the right foundation. Create, save, and download a professional resume at no cost, no hassle.",
+        "Designed for ambitious job seekers. ATS-ready format, professional appearance, completely free.",
+      ],
       startCreating: "Start Creating Now",
       viewMyCVs: "View My CVs",
       attributionLabel: "Created by",
@@ -237,6 +243,12 @@ export const translations = {
       title: "Buat CV Profesional yang Ramah ATS",
       subtitle:
         "Ruang kerja yang tenang dan profesional untuk membantu Anda mendapatkan pekerjaan impian. Mudah, mendukung, dan mengerjakan semua hal teknis untuk Anda.",
+      subtitleOptions: [
+        "Ruang kerja yang tenang dan profesional untuk membantu Anda mendapatkan pekerjaan impian. Mudah, mendukung, dan mengerjakan semua hal teknis untuk Anda.",
+        "Buat CV ATS-friendly dalam hitungan menit. Isi data Anda, kami urus formatnya — siap dilamar ke perusahaan impian.",
+        "CV yang kuat dimulai dari fondasi yang tepat. Buat, simpan, dan unduh CV profesional tanpa biaya, tanpa kerumitan.",
+        "Dirancang untuk pencari kerja Indonesia yang ambisius. Format ATS-ready, tampilan profesional, gratis sepenuhnya.",
+      ],
       startCreating: "Mulai Buat Sekarang",
       viewMyCVs: "Lihat CV Saya",
       attributionLabel: "Dibuat oleh",
