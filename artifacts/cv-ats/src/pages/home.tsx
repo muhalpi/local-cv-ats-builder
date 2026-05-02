@@ -29,7 +29,7 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] max-w-4xl mx-auto text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-sky-700">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.15] pb-2 max-w-4xl mx-auto text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-sky-700">
               {h.title}
             </h1>
 
