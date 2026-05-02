@@ -13,7 +13,7 @@ export const translations = {
     home: {
       title: "Build a Professional, ATS-Friendly CV",
       subtitle:
-        "A strong CV starts with the right foundation. Create, save, and download a professional resume at no cost, no hassle — your data stays on your device, never uploaded online.",
+        "A strong CV starts with the right foundation. Create, save, and download your professional resume locally — at no cost, no hassle, and no worries about your data being misused.",
       startCreating: "Start Creating Now",
       viewMyCVs: "View My CVs",
       attributionLabel: "Created by",
@@ -236,7 +236,7 @@ export const translations = {
     home: {
       title: "Buat CV Profesional yang Ramah ATS",
       subtitle:
-        "CV yang kuat dimulai dari fondasi yang tepat. Buat, simpan, dan unduh CV profesional tanpa biaya, tanpa kerumitan — data Anda tersimpan di perangkat Anda, tidak diunggah ke server.",
+        "CV yang kuat dimulai dari fondasi yang tepat. Buat, simpan, dan unduh CV profesional secara lokal tanpa biaya, tanpa kerumitan, tanpa khawatir data Anda disalahgunakan.",
       startCreating: "Mulai Buat Sekarang",
       viewMyCVs: "Lihat CV Saya",
       attributionLabel: "Dibuat oleh",
