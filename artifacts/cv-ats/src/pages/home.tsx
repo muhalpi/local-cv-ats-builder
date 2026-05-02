@@ -34,9 +34,10 @@ export default function Home() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg md:text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-              {h.subtitle}
-            </p>
+            <p
+              className="text-lg md:text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed [&_strong]:text-slate-800 [&_strong]:font-semibold"
+              dangerouslySetInnerHTML={{ __html: h.subtitle }}
+            />
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24">
