@@ -21,18 +21,29 @@ import type { Translations } from "@/lib/i18n";
 
 type CVLanguageOption = "en" | "id";
 type CVThemeOption = "blue" | "black";
+type CVTemplateOption = "modern" | "classic";
 
-function parseCvStyleValue(cvLanguageValue?: string | null): { cvLanguage: CVLanguageOption; cvTheme: CVThemeOption } {
+function parseCvStyleValue(cvLanguageValue?: string | null): { cvLanguage: CVLanguageOption; cvTheme: CVThemeOption; cvTemplate: CVTemplateOption } {
   const raw = (cvLanguageValue ?? "en").toLowerCase();
-  const [languagePart, themePart] = raw.split(":");
+  const [languagePart, stylePartOne, stylePartTwo] = raw.split(":");
+  const cvTheme: CVThemeOption =
+    stylePartOne === "black" || stylePartOne === "blue"
+      ? stylePartOne
+      : "blue";
+  const templatePart =
+    stylePartTwo ?? (stylePartOne === "modern" || stylePartOne === "classic" ? stylePartOne : undefined);
   return {
     cvLanguage: languagePart === "id" ? "id" : "en",
-    cvTheme: themePart === "black" ? "black" : "blue",
+    cvTheme,
+    cvTemplate: templatePart === "classic" ? "classic" : "modern",
   };
 }
 
-function composeCvStyleValue(cvLanguage: CVLanguageOption, cvTheme: CVThemeOption): string {
-  return cvTheme === "black" ? `${cvLanguage}:black` : cvLanguage;
+function composeCvStyleValue(cvLanguage: CVLanguageOption, cvTheme: CVThemeOption, cvTemplate: CVTemplateOption): string {
+  if (cvTemplate === "modern") {
+    return cvTheme === "black" ? `${cvLanguage}:black` : cvLanguage;
+  }
+  return `${cvLanguage}:${cvTheme}:classic`;
 }
 
 const MAX_PROFILE_PHOTO_SIZE_BYTES = 2 * 1024 * 1024;
@@ -92,6 +103,7 @@ function makeSchema(v: Translations["cvForm"]["validation"]) {
     profilePhoto: z.string().optional().nullable(),
     cvLanguage: z.enum(["en", "id"]).default("en"),
     cvTheme: z.enum(["blue", "black"]).default("blue"),
+    cvTemplate: z.enum(["modern", "classic"]).default("modern"),
     workExperience: z.array(workExperienceSchema),
     education: z.array(educationSchema),
     extraSections: z.array(extraSectionSchema),
@@ -284,6 +296,7 @@ export default function CVForm() {
       profilePhoto: "",
       cvLanguage: "en" as "en" | "id",
       cvTheme: "blue" as "blue" | "black",
+      cvTemplate: "modern" as "modern" | "classic",
       workExperience: [],
       education: [],
       extraSections: [],
@@ -307,7 +320,7 @@ export default function CVForm() {
 
   useEffect(() => {
     if (initialData) {
-      const { cvLanguage, cvTheme } = parseCvStyleValue(initialData.cvLanguage);
+      const { cvLanguage, cvTheme, cvTemplate } = parseCvStyleValue(initialData.cvLanguage);
       form.reset({
         fullName: initialData.fullName || "",
         email: initialData.email || "",
@@ -322,6 +335,7 @@ export default function CVForm() {
         profilePhoto: initialData.profilePhoto || "",
         cvLanguage,
         cvTheme,
+        cvTemplate,
         workExperience: initialData.workExperience || [],
         education: initialData.education || [],
         extraSections: (initialData.extraSections as { sectionTitle: string; entries: { title: string; subtitle?: string | null; date?: string | null; description?: string | null }[] }[]) || [],
@@ -436,7 +450,7 @@ export default function CVForm() {
       profilePhoto: values.profilePhoto || null,
       skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
       languages: values.languages ? values.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
-      cvLanguage: composeCvStyleValue(values.cvLanguage, values.cvTheme),
+      cvLanguage: composeCvStyleValue(values.cvLanguage, values.cvTheme, values.cvTemplate),
     };
 
     try {
@@ -462,7 +476,7 @@ export default function CVForm() {
 
   const validateStep = async (stepIndex: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
-    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "profilePhoto", "cvLanguage", "cvTheme"];
+    if (stepIndex === 0) fieldsToValidate = ["fullName", "email", "phone", "location", "jobTitle", "linkedinUrl", "portfolioUrl", "profilePhoto", "cvLanguage", "cvTheme", "cvTemplate"];
     else if (stepIndex === 1) fieldsToValidate = ["summary", "skills", "languages"];
     else if (stepIndex === 2) fieldsToValidate = ["workExperience"];
     else if (stepIndex === 3) fieldsToValidate = ["education"];
@@ -494,7 +508,7 @@ export default function CVForm() {
     [
       watchedValues.fullName, watchedValues.email, watchedValues.phone, watchedValues.location,
       watchedValues.jobTitle, watchedValues.summary, watchedValues.skills, watchedValues.languages,
-      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.profilePhoto, watchedValues.cvLanguage, watchedValues.cvTheme,
+      watchedValues.linkedinUrl, watchedValues.portfolioUrl, watchedValues.profilePhoto, watchedValues.cvLanguage, watchedValues.cvTheme, watchedValues.cvTemplate,
       JSON.stringify(watchedValues.workExperience), JSON.stringify(watchedValues.education),
       JSON.stringify(watchedValues.extraSections),
     ]
@@ -810,6 +824,48 @@ export default function CVForm() {
                               <p className="text-sm font-semibold">{f.cvLanguageId}</p>
                               <p className="text-xs opacity-70">Pengalaman Kerja · Pendidikan · Keahlian</p>
                             </div>
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="cvTemplate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{f.cvTemplateLabel}</FormLabel>
+                        <FormDescription>{f.cvTemplateHint}</FormDescription>
+                        <div className="flex gap-3 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("modern")}
+                            className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "modern"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <p className="text-sm font-semibold">{f.cvTemplateModern}</p>
+                            <p className="text-xs opacity-70">
+                              {language === "id" ? "Tampilan bersih dengan aksen modern" : "Clean layout with modern accents"}
+                            </p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("classic")}
+                            className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors cursor-pointer ${
+                              field.value === "classic"
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                            }`}
+                          >
+                            <p className="text-sm font-semibold">{f.cvTemplateClassic}</p>
+                            <p className="text-xs opacity-70">
+                              {language === "id" ? "Format formal tradisional untuk CV" : "Traditional formal CV format"}
+                            </p>
                           </button>
                         </div>
                         <FormMessage />

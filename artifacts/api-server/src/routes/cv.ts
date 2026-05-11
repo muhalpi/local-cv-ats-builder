@@ -206,23 +206,128 @@ const CV_LABELS = {
 
 type CVLanguage = "en" | "id";
 type CVTheme = "blue" | "black";
+type CVTemplate = "modern" | "classic";
 
-function parseCvStyle(value?: string | null): { lang: CVLanguage; theme: CVTheme } {
+function parseCvStyle(value?: string | null): { lang: CVLanguage; theme: CVTheme; template: CVTemplate } {
   const raw = (value ?? "en").toLowerCase();
-  const [languagePart, themePart] = raw.split(":");
+  const [languagePart, stylePartOne, stylePartTwo] = raw.split(":");
+  const themePart: CVTheme | undefined =
+    stylePartOne === "black" || stylePartOne === "blue" ? stylePartOne : undefined;
+  const templatePart = stylePartTwo ?? (stylePartOne === "modern" || stylePartOne === "classic" ? stylePartOne : undefined);
   return {
     lang: languagePart === "id" ? "id" : "en",
     theme: themePart === "black" ? "black" : "blue",
+    template: templatePart === "classic" ? "classic" : "modern",
   };
 }
 
-function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
-  const { lang, theme } = parseCvStyle(cv.cvLanguage);
-  const labels = CV_LABELS[lang];
+function getModernCvStyles(theme: CVTheme): string {
   const accent = theme === "black" ? "#111111" : "#1e40af";
   const accentSoft = theme === "black" ? "#111111" : "#3b82f6";
   const accentBorder = theme === "black" ? "#d4d4d8" : "#bfdbfe";
   const tagBackground = theme === "black" ? "#f4f4f5" : "#eff6ff";
+
+  return `
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #f1f5f9; }
+  body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
+  .header-main { flex: 1; min-width: 0; }
+  .name { font-size: 24pt; font-weight: 700; color: ${accent}; letter-spacing: -0.5px; }
+  .job-title { font-size: 13pt; color: ${accentSoft}; font-weight: 500; margin-top: 2px; }
+  .photo-frame { width: 30mm; aspect-ratio: 3 / 4; border: 1px solid ${accentBorder}; border-radius: 4px; overflow: hidden; background: #f8fafc; flex-shrink: 0; }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .contact { margin-top: 8px; font-size: 9.5pt; color: #475569; display: flex; flex-wrap: wrap; gap: 8px 16px; }
+  .contact a { color: #475569; text-decoration: none; }
+  .contact-link { color: #475569 !important; }
+  section { margin-bottom: 20px; }
+  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1px; color: ${accent}; border-bottom: 1px solid ${accentBorder}; padding-bottom: 4px; margin-bottom: 12px; font-weight: 700; }
+  .summary { color: #374151; font-size: 10.5pt; line-height: 1.6; }
+  .entry { margin-bottom: 12px; }
+  .entry-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .entry-title { font-weight: 700; font-size: 10.5pt; color: #1a1a2e; }
+  .entry-subtitle { color: #475569; font-size: 10pt; }
+  .entry-date { font-size: 9.5pt; color: #6b7280; white-space: nowrap; margin-left: 8px; }
+  .entry-gpa { margin-top: 2px; font-size: 9.5pt; color: #6b7280; }
+  .entry-desc { margin: 6px 0 0 0; padding-left: 18px; font-size: 10pt; color: #374151; line-height: 1.5; list-style-type: disc; }
+  .entry-desc li { margin-bottom: 4px; display: list-item; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { background: ${tagBackground}; border: 1px solid ${accentBorder}; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: ${accent}; }
+  @page { size: A4; margin: 16mm 15mm; }
+  @media screen {
+    body { padding: 24px 0; }
+    .page { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12); }
+  }
+  @media print {
+    html, body { width: auto; min-height: auto; background: white; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { padding: 0; }
+    .page { width: auto; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
+    section, .entry { break-inside: avoid-page; page-break-inside: avoid; }
+    a { color: #475569 !important; }
+    .contact-link { color: #475569 !important; }
+    .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+`;
+}
+
+function getClassicCvStyles(theme: CVTheme): string {
+  const accent = theme === "black" ? "#1f2937" : "#1e3a8a";
+  const accentSoft = theme === "black" ? "#4b5563" : "#1d4ed8";
+  const line = theme === "black" ? "#9ca3af" : "#93c5fd";
+  const tagBorder = theme === "black" ? "#9ca3af" : "#bfdbfe";
+
+  return `
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #f5f5f4; }
+  body { font-family: 'Times New Roman', 'Georgia', serif; font-size: 11pt; color: #111827; background: #f5f5f4; line-height: 1.45; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; border: 1px solid #e5e7eb; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 1px solid ${line}; padding-bottom: 12px; margin-bottom: 18px; }
+  .header-main { flex: 1; min-width: 0; }
+  .name { font-size: 22pt; font-weight: 700; color: ${accent}; letter-spacing: 0.4px; }
+  .job-title { font-size: 12pt; color: ${accentSoft}; font-weight: 600; margin-top: 4px; }
+  .photo-frame { width: 30mm; aspect-ratio: 3 / 4; border: 1px solid ${line}; border-radius: 0; overflow: hidden; background: #f8fafc; flex-shrink: 0; }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .contact { margin-top: 8px; font-size: 10pt; color: #374151; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .contact a { color: #374151; text-decoration: none; }
+  .contact-link { color: #374151 !important; }
+  section { margin-bottom: 16px; }
+  h2 { font-size: 10.5pt; text-transform: uppercase; letter-spacing: 1.2px; color: ${accent}; border-bottom: 1px solid ${line}; padding-bottom: 2px; margin-bottom: 8px; font-weight: 700; }
+  .summary { color: #1f2937; font-size: 10.5pt; line-height: 1.55; text-align: justify; }
+  .entry { margin-bottom: 10px; }
+  .entry-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .entry-title { font-weight: 700; font-size: 10.5pt; color: #111827; }
+  .entry-subtitle { color: #374151; font-size: 10pt; font-style: italic; }
+  .entry-date { font-size: 9.5pt; color: #4b5563; white-space: nowrap; }
+  .entry-gpa { margin-top: 2px; font-size: 9.5pt; color: #4b5563; }
+  .entry-desc { margin: 4px 0 0 0; padding-left: 16px; font-size: 10pt; color: #1f2937; line-height: 1.45; list-style-type: disc; }
+  .entry-desc li { margin-bottom: 3px; display: list-item; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { border: 1px solid ${tagBorder}; border-radius: 0; padding: 2px 8px; font-size: 9.5pt; color: ${accent}; background: white; }
+  @page { size: A4; margin: 16mm 15mm; }
+  @media screen {
+    body { padding: 24px 0; }
+    .page { box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1); }
+  }
+  @media print {
+    html, body { width: auto; min-height: auto; background: white; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { padding: 0; }
+    .page { width: auto; min-height: auto; padding: 0; margin: 0; box-shadow: none; border: none; }
+    section, .entry { break-inside: avoid-page; page-break-inside: avoid; }
+    a { color: #374151 !important; }
+    .contact-link { color: #374151 !important; }
+  }
+`;
+}
+
+function getCvStyles(theme: CVTheme, template: CVTemplate): string {
+  return template === "classic" ? getClassicCvStyles(theme) : getModernCvStyles(theme);
+}
+
+function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
+  const { lang, theme, template } = parseCvStyle(cv.cvLanguage);
+  const labels = CV_LABELS[lang];
+  const cvStyles = getCvStyles(theme, template);
 
   const extraSectionsHtml = (cv.extraSections as { sectionTitle: string; entries: { title: string; subtitle?: string | null; date?: string | null; description?: string | null }[] }[] | null ?? [])
     .filter(sec => sec.entries.length > 0)
@@ -255,7 +360,7 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
             <div class="entry-title">${escapeHtml(exp.position)}</div>
             <div class="entry-subtitle">${escapeHtml(exp.company)}</div>
           </div>
-          <div class="entry-date">${escapeHtml(exp.startDate)} – ${exp.isCurrent ? labels.present : escapeHtml(exp.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(exp.startDate)} - ${exp.isCurrent ? labels.present : escapeHtml(exp.endDate ?? '')}</div>
         </div>
         <ul class="entry-desc">
           ${exp.description
@@ -273,11 +378,11 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
       <div class="entry">
         <div class="entry-header">
           <div>
-            <div class="entry-title">${escapeHtml(edu.degree)} – ${escapeHtml(edu.field)}</div>
+            <div class="entry-title">${escapeHtml(edu.degree)} - ${escapeHtml(edu.field)}</div>
             <div class="entry-subtitle">${escapeHtml(edu.institution)}</div>
             ${edu.gpa ? `<div class="entry-gpa">GPA: ${escapeHtml(edu.gpa)}</div>` : ''}
           </div>
-          <div class="entry-date">${escapeHtml(edu.startDate)} – ${edu.isCurrent ? labels.present : escapeHtml(edu.endDate ?? '')}</div>
+          <div class="entry-date">${escapeHtml(edu.startDate)} - ${edu.isCurrent ? labels.present : escapeHtml(edu.endDate ?? '')}</div>
         </div>
       </div>
     `).join('');
@@ -289,58 +394,16 @@ function generateCVHtml(cv: typeof cvsTable.$inferSelect): string {
   const linksHtml = [
     cv.linkedinUrl ? `<a href="${escapeHtml(cv.linkedinUrl)}" class="contact-link">${escapeHtml(stripUrl(cv.linkedinUrl))}</a>` : '',
     cv.portfolioUrl ? `<a href="${escapeHtml(cv.portfolioUrl)}" class="contact-link">${escapeHtml(stripUrl(cv.portfolioUrl))}</a>` : '',
-  ].filter(Boolean).join(' · ');
+  ].filter(Boolean).join(' | ');
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV – ${escapeHtml(cv.fullName)}</title>
+<title>CV - ${escapeHtml(cv.fullName)}</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { background: #f1f5f9; }
-  body { font-family: 'Arial', sans-serif; font-size: 11pt; color: #1a1a2e; background: #f1f5f9; line-height: 1.5; }
-  .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 15mm; background: white; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 2px solid ${accent}; padding-bottom: 16px; margin-bottom: 24px; }
-  .header-main { flex: 1; min-width: 0; }
-  .name { font-size: 24pt; font-weight: 700; color: ${accent}; letter-spacing: -0.5px; }
-  .job-title { font-size: 13pt; color: ${accentSoft}; font-weight: 500; margin-top: 2px; }
-  .photo-frame { width: 30mm; aspect-ratio: 3 / 4; border: 1px solid ${accentBorder}; border-radius: 4px; overflow: hidden; background: #f8fafc; flex-shrink: 0; }
-  .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .contact { margin-top: 8px; font-size: 9.5pt; color: #475569; display: flex; flex-wrap: wrap; gap: 8px 16px; }
-  .contact a { color: #475569; text-decoration: none; }
-  .contact-link { color: #475569 !important; }
-  section { margin-bottom: 20px; }
-  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1px; color: ${accent}; border-bottom: 1px solid ${accentBorder}; padding-bottom: 4px; margin-bottom: 12px; font-weight: 700; }
-  .summary { color: #374151; font-size: 10.5pt; line-height: 1.6; }
-  .entry { margin-bottom: 12px; }
-  .entry-header { display: flex; justify-content: space-between; align-items: flex-start; }
-  .entry-title { font-weight: 700; font-size: 10.5pt; color: #1a1a2e; }
-  .entry-subtitle { color: #475569; font-size: 10pt; }
-  .entry-date { font-size: 9.5pt; color: #6b7280; white-space: nowrap; margin-left: 8px; }
-  .entry-gpa { margin-top: 2px; font-size: 9.5pt; color: #6b7280; }
-  .entry-desc { margin: 6px 0 0 0; padding-left: 18px; font-size: 10pt; color: #374151; line-height: 1.5; list-style-type: disc; }
-  .entry-desc li { margin-bottom: 4px; display: list-item; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag { background: ${tagBackground}; border: 1px solid ${accentBorder}; border-radius: 4px; padding: 2px 8px; font-size: 9.5pt; color: ${accent}; }
-  @page {
-    size: A4;
-    margin: 16mm 15mm;
-  }
-  @media screen {
-    body { padding: 24px 0; }
-    .page { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12); }
-  }
-  @media print {
-    html, body { width: auto; min-height: auto; background: white; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { padding: 0; }
-    .page { width: auto; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
-    section, .entry { break-inside: avoid-page; page-break-inside: avoid; }
-    a { color: #475569 !important; }
-    .contact-link { color: #475569 !important; }
-    .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
+  ${cvStyles}
 </style>
 </head>
 <body>
