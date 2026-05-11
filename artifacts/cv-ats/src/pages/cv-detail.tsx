@@ -43,11 +43,11 @@ export default function CVDetail() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background/50">
+    <div className="flex min-h-[100dvh] flex-col">
       <Navbar />
       
       <main className="flex-1 container mx-auto max-w-6xl px-4 py-6 md:py-8">
-        <div className="mb-6 rounded-2xl border bg-card p-4 shadow-sm md:p-5">
+        <div className="mb-6 rounded-2xl border border-slate-200 card-glass p-4 shadow-sm md:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
             <Link href="/cv" className="hover:text-foreground flex items-center gap-1 transition-colors">
@@ -59,7 +59,7 @@ export default function CVDetail() {
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-primary">{d.previewTitle}</h1>
+                  <h1 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-sky-700">{d.previewTitle}</h1>
                   <p className="text-sm text-muted-foreground">{d.previewSubtitle}</p>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export default function CVDetail() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 card-glass shadow-sm">
           <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-2 font-medium">
               <Download className="h-4 w-4" />

@@ -13,7 +13,7 @@ export const translations = {
     home: {
       title: "Build a Professional, ATS-Friendly CV",
       subtitle:
-        "A quiet, professional workspace to help you land your dream job. Calm, encouraging, and does all the heavy lifting for you.",
+        "A strong CV starts with the right foundation.<br>Create, save, and download your professional resume locally — <strong>at no cost</strong>, <strong>no hassle</strong>, and <strong>no worries about your data being misused</strong>.",
       startCreating: "Start Creating Now",
       viewMyCVs: "View My CVs",
       attributionLabel: "Created by",
@@ -240,7 +240,7 @@ export const translations = {
     home: {
       title: "Buat CV Profesional yang Ramah ATS",
       subtitle:
-        "Ruang kerja yang tenang dan profesional untuk membantu Anda mendapatkan pekerjaan impian. Mudah, mendukung, dan mengerjakan semua hal teknis untuk Anda.",
+        "CV yang kuat dimulai dari fondasi yang tepat.<br>Buat, simpan, dan unduh CV profesional secara lokal <strong>tanpa biaya</strong>,<br><strong>tanpa kerumitan</strong>, <strong>tanpa khawatir data disalahgunakan</strong>.",
       startCreating: "Mulai Buat Sekarang",
       viewMyCVs: "Lihat CV Saya",
       attributionLabel: "Dibuat oleh",

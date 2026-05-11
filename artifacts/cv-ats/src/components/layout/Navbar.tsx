@@ -7,31 +7,25 @@ export function Navbar() {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <FileText className="h-5 w-5" />
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
+      <div className="container mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/10 border border-sky-500/20">
+              <FileText className="h-5 w-5 text-sky-600" />
             </div>
-            <span className="inline-block font-bold text-xl tracking-tight text-primary">BuatCV</span>
+            <span className="inline-block font-bold text-xl tracking-tight text-slate-900">BuatCV</span>
           </Link>
-          <nav className="flex gap-6 text-sm font-medium">
-            <Link
-              href="/cv"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
+          <nav className="hidden md:flex gap-7 text-sm font-medium text-slate-500">
+            <Link href="/cv" className="transition-colors hover:text-slate-900">
               {t.nav.myCVs}
             </Link>
-            <Link
-              href="/cv/new"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
+            <Link href="/cv/new" className="transition-colors hover:text-slate-900">
               {t.nav.createNew}
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-border bg-muted p-0.5">
+        <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-0.5">
           <Button
             size="sm"
             variant={language === "id" ? "default" : "ghost"}
