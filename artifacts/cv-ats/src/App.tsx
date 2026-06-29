@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/home"));
+const Donate = lazy(() => import("@/pages/donate"));
 const CVList = lazy(() => import("@/pages/cv-list"));
 const CVForm = lazy(() => import("@/pages/cv-form"));
 const CVDetail = lazy(() => import("@/pages/cv-detail"));
@@ -24,6 +25,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/donate" component={Donate} />
       <Route path="/cv" component={CVList} />
       <Route path="/cv/new" component={CVForm} />
       <Route path="/cv/:id/edit" component={CVForm} />

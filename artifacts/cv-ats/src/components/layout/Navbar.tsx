@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText } from "lucide-react";
+import { FileText, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 
@@ -14,34 +14,60 @@ export function Navbar() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/10 border border-sky-500/20">
               <FileText className="h-5 w-5 text-sky-600" />
             </div>
-            <span className="inline-block font-bold text-xl tracking-tight text-slate-900">BuatCV</span>
+            <span className="inline-block font-bold text-xl tracking-tight text-slate-900">
+              BuatCV
+            </span>
           </Link>
           <nav className="hidden md:flex gap-7 text-sm font-medium text-slate-500">
             <Link href="/cv" className="transition-colors hover:text-slate-900">
               {t.nav.myCVs}
             </Link>
-            <Link href="/cv/new" className="transition-colors hover:text-slate-900">
+            <Link
+              href="/cv/new"
+              className="transition-colors hover:text-slate-900"
+            >
               {t.nav.createNew}
+            </Link>
+            <Link
+              href="/donate"
+              className="transition-colors hover:text-slate-900"
+            >
+              {language === "id" ? "Donasi" : "Donate"}
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-0.5">
+        <div className="flex items-center gap-3">
           <Button
+            asChild
             size="sm"
-            variant={language === "id" ? "default" : "ghost"}
-            className="h-7 rounded-full px-3 text-xs font-semibold"
-            onClick={() => setLanguage("id")}
+            variant="outline"
+            className="h-9 rounded-full border-slate-200 bg-white/70 px-3 text-slate-700 shadow-sm hover:bg-white"
           >
-            ID
+            <Link href="/donate">
+              <Heart className="h-4 w-4 text-rose-500" />
+              <span className="hidden sm:inline">
+                {language === "id" ? "Donasi" : "Donate"}
+              </span>
+            </Link>
           </Button>
-          <Button
-            size="sm"
-            variant={language === "en" ? "default" : "ghost"}
-            className="h-7 rounded-full px-3 text-xs font-semibold"
-            onClick={() => setLanguage("en")}
-          >
-            EN
-          </Button>
+          <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-0.5">
+            <Button
+              size="sm"
+              variant={language === "id" ? "default" : "ghost"}
+              className="h-7 rounded-full px-3 text-xs font-semibold"
+              onClick={() => setLanguage("id")}
+            >
+              ID
+            </Button>
+            <Button
+              size="sm"
+              variant={language === "en" ? "default" : "ghost"}
+              className="h-7 rounded-full px-3 text-xs font-semibold"
+              onClick={() => setLanguage("en")}
+            >
+              EN
+            </Button>
+          </div>
         </div>
       </div>
     </header>
