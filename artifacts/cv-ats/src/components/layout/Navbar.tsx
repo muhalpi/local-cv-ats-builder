@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 
@@ -11,9 +11,11 @@ export function Navbar() {
       <div className="container mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/10 border border-sky-500/20">
-              <FileText className="h-5 w-5 text-sky-600" />
-            </div>
+            <img
+              src="/icon-buatcv-light.png"
+              alt="BuatCV"
+              className="h-9 w-9 rounded-lg object-cover"
+            />
             <span className="inline-block font-bold text-xl tracking-tight text-slate-900">
               BuatCV
             </span>
