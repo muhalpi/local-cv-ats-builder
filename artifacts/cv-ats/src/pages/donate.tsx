@@ -95,7 +95,7 @@ const pageCopy: Record<
     qrFailed: "QRIS gagal dibuat. Coba ubah nominal.",
     qrisSafeTitle: "QRIS resmi dan aman digunakan",
     qrisSafeDesc:
-      "QRIS ini hanya berisi instruksi pembayaran donasi sesuai nominal yang Anda pilih. Scan melalui aplikasi pembayaran tepercaya dan pastikan nama serta nominal sudah benar sebelum konfirmasi.",
+      "QRIS ini resmi untuk donasi BuatCV dan aman dipindai lewat aplikasi pembayaran tepercaya. Pastikan nama penerima dan nominal sudah benar sebelum konfirmasi.",
     qrisSafetyNotes: [
       "Tidak meminta PIN, password, OTP, atau data pribadi.",
       "Tidak mengunduh file dan tidak mengubah data di perangkat Anda.",
@@ -132,7 +132,7 @@ const pageCopy: Record<
     qrFailed: "Failed to generate QRIS. Try changing the amount.",
     qrisSafeTitle: "Official QRIS and safe to use",
     qrisSafeDesc:
-      "This QRIS only contains a donation payment instruction for the amount you choose. Scan it from a trusted payment app and confirm the recipient name and amount before paying.",
+      "This official QRIS is for BuatCV donations and is safe to scan from a trusted payment app. Confirm the recipient name and amount before paying.",
     qrisSafetyNotes: [
       "It never asks for your PIN, password, OTP, or personal data.",
       "It does not download files or change data on your device.",
@@ -330,10 +330,10 @@ export default function Donate() {
                 <Heart className="h-4 w-4" />
                 {copy.eyebrow}
               </div>
-              <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-normal text-slate-950 sm:text-5xl">
+              <h1 className="max-w-3xl break-words text-3xl font-extrabold leading-tight tracking-normal text-slate-950 sm:text-5xl">
                 {copy.title}
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+              <p className="mt-5 max-w-2xl break-words text-base leading-7 text-slate-600 sm:text-lg">
                 {copy.subtitle}
               </p>
             </div>
@@ -341,7 +341,7 @@ export default function Donate() {
         </section>
 
         <section className="px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-          <div className="container mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="container mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
             <section aria-labelledby="donation-accounts" className="min-w-0">
               <div className="mb-5">
                 <h2
@@ -350,7 +350,7 @@ export default function Donate() {
                 >
                   {copy.bankTitle}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                   {copy.bankSubtitle}
                 </p>
               </div>
@@ -363,7 +363,7 @@ export default function Donate() {
                   return (
                     <Card
                       key={method.name}
-                      className="rounded-lg border-slate-200 bg-white/85 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                      className="min-w-0 overflow-hidden rounded-lg border-slate-200 bg-white/85 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex min-w-0 gap-4">
@@ -380,7 +380,7 @@ export default function Donate() {
                             <p className="text-sm font-semibold text-slate-500">
                               {isWallet ? copy.eWallet : copy.bankTransfer}
                             </p>
-                            <h3 className="mt-1 text-lg font-bold leading-tight tracking-normal text-slate-950">
+                            <h3 className="mt-1 break-words text-lg font-bold leading-tight tracking-normal text-slate-950">
                               {method.name}
                             </h3>
                             <p className="mt-2 break-all font-mono text-2xl font-bold tracking-normal text-slate-900">
@@ -412,20 +412,20 @@ export default function Donate() {
               </div>
             </section>
 
-            <Card className="rounded-lg border-slate-200 bg-slate-950 p-5 text-white shadow-lg sm:p-6">
+            <Card className="min-w-0 overflow-hidden rounded-lg border-slate-200 bg-white/90 p-5 text-slate-900 shadow-sm sm:p-6">
               <section aria-labelledby="donation-qris" className="min-w-0">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-cyan-300/15 text-cyan-200">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-sky-700">
                     <QrCode className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
                     <h2
                       id="donation-qris"
-                      className="text-2xl font-bold tracking-normal"
+                      className="break-words text-2xl font-bold tracking-normal"
                     >
                       {copy.qrisTitle}
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                       {copy.qrisSubtitle}
                     </p>
                   </div>
@@ -434,12 +434,12 @@ export default function Donate() {
                 <div className="mt-6">
                   <Label
                     htmlFor="donation-amount"
-                    className="text-sm font-semibold text-slate-100"
+                    className="text-sm font-semibold text-slate-800"
                   >
                     {copy.amountLabel}
                   </Label>
-                  <div className="mt-2 flex">
-                    <div className="flex h-12 items-center rounded-l-lg border border-r-0 border-white/20 bg-white/10 px-4 text-sm font-bold text-slate-200">
+                  <div className="mt-2 flex min-w-0">
+                    <div className="flex h-12 items-center rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-600">
                       Rp
                     </div>
                     <Input
@@ -450,12 +450,12 @@ export default function Donate() {
                       onChange={(event) =>
                         setAmount(cleanAmount(event.target.value))
                       }
-                      className="h-12 rounded-l-none border-white/20 bg-white text-base font-semibold text-slate-950 placeholder:text-slate-400 focus-visible:ring-cyan-300"
+                      className="h-12 min-w-0 rounded-l-none border-slate-200 bg-white text-base font-semibold text-slate-950 placeholder:text-slate-400 focus-visible:ring-sky-400"
                     />
                   </div>
 
                   <div className="mt-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-normal text-slate-400">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-normal text-slate-500">
                       {copy.quickAmountLabel}
                     </p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -467,10 +467,10 @@ export default function Donate() {
                           variant={
                             amountNumber === value ? "default" : "outline"
                           }
-                          className={`h-10 rounded-lg text-xs font-bold ${
+                          className={`h-10 min-w-0 rounded-lg px-2 text-xs font-bold ${
                             amountNumber === value
-                              ? "border-cyan-300 bg-cyan-300 text-slate-950"
-                              : "border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                              ? "border-sky-600 bg-sky-600 text-white"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
                           onClick={() => setAmount(String(value))}
                         >
@@ -481,8 +481,8 @@ export default function Donate() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-5 xl:grid-cols-[320px_1fr]">
-                  <div className="flex aspect-square min-h-[280px] items-center justify-center rounded-lg bg-white p-4 text-center">
+                <div className="mt-6 grid gap-5 2xl:grid-cols-[300px_1fr]">
+                  <div className="mx-auto flex aspect-square w-full max-w-[260px] items-center justify-center rounded-lg border border-slate-200 bg-white p-3 text-center shadow-sm sm:max-w-[300px] 2xl:mx-0">
                     {qrError ? (
                       <p className="max-w-48 text-sm font-semibold leading-6 text-red-600">
                         {qrError}
@@ -501,25 +501,25 @@ export default function Donate() {
                   </div>
 
                   <div className="min-w-0 space-y-4">
-                    <div className="rounded-lg border border-white/10 bg-white/10 p-4">
-                      <p className="text-sm text-slate-300">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm text-slate-600">
                         {copy.qrReadyFor}
                       </p>
-                      <p className="mt-1 text-3xl font-extrabold tracking-normal text-white">
+                      <p className="mt-1 text-3xl font-extrabold tracking-normal text-slate-950">
                         {formatRupiah(isValidAmount ? amountNumber : 0)}
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-300/15 text-emerald-200">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-white text-emerald-700">
                           <ShieldCheck className="h-5 w-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-base font-bold tracking-normal text-white">
+                          <h3 className="break-words text-base font-bold tracking-normal text-slate-950">
                             {copy.qrisSafeTitle}
                           </h3>
-                          <p className="mt-2 text-sm leading-6 text-emerald-50/85">
+                          <p className="mt-2 break-words text-sm leading-6 text-slate-700">
                             {copy.qrisSafeDesc}
                           </p>
                         </div>
@@ -529,10 +529,10 @@ export default function Donate() {
                         {copy.qrisSafetyNotes.map((note) => (
                           <div
                             key={note}
-                            className="flex items-start gap-2 text-sm leading-6 text-slate-100"
+                            className="flex items-start gap-2 text-sm leading-6 text-slate-700"
                           >
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-200" />
-                            <span>{note}</span>
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+                            <span className="min-w-0 break-words">{note}</span>
                           </div>
                         ))}
                       </div>
