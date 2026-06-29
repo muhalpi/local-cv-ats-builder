@@ -30,12 +30,6 @@ export function Navbar() {
             >
               {t.nav.createNew}
             </Link>
-            <Link
-              href="/donate"
-              className="transition-colors hover:text-slate-900"
-            >
-              {language === "id" ? "Donasi" : "Donate"}
-            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">
